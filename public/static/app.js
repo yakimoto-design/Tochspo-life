@@ -358,8 +358,14 @@ function renderUpcomingMatches(matches) {
                 </span>
                 <span class="text-sm text-gray-500">
                   <i class="fas fa-calendar mr-1"></i>
-                  ${dayjs(match.match_date).format('M/D(ddd) HH:mm')}
+                  ${dayjs(match.match_date).format('M/D(ddd)')}
                 </span>
+              </div>
+              
+              <!-- キックオフ時間 - 大きく表示 -->
+              <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4 text-center border-2 border-blue-200">
+                <p class="text-xs text-gray-600 mb-1 font-bold uppercase tracking-wide">KICK OFF</p>
+                <p class="text-4xl font-black text-blue-600">${dayjs(match.match_date).format('HH:mm')}</p>
               </div>
               
               <div class="mb-4">
