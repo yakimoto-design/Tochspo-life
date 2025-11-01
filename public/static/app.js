@@ -141,6 +141,8 @@ function renderHeader() {
               <div class="text-xs text-blue-200 mt-1" style="font-weight: 400; letter-spacing: 0.5px;">栃木のプロスポーツをもっと身近に</div>
             </div>
           </div>
+          
+          <!-- デスクトップメニュー -->
           <div class="hidden md:flex space-x-6 text-white">
             <a href="#home" class="hover:text-blue-400 transition" onclick="navigateTo('home')">
               <i class="fas fa-home mr-1"></i>ホーム
@@ -155,10 +157,50 @@ function renderHeader() {
               <i class="fas fa-book mr-1"></i>コラム
             </a>
           </div>
+          
+          <!-- モバイルメニューボタン -->
+          <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </nav>
+        
+        <!-- モバイルメニュー -->
+        <div id="mobile-menu" class="hidden md:hidden pb-4">
+          <a href="#home" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="navigateTo('home'); toggleMobileMenu()">
+            <i class="fas fa-home mr-2"></i>ホーム
+          </a>
+          <a href="#schedule" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('schedule'); toggleMobileMenu()">
+            <i class="fas fa-calendar mr-2"></i>試合情報
+          </a>
+          <a href="#teams" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('teams'); toggleMobileMenu()">
+            <i class="fas fa-users mr-2"></i>チーム
+          </a>
+          <a href="#guides" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('guides'); toggleMobileMenu()">
+            <i class="fas fa-book mr-2"></i>コラム
+          </a>
+        </div>
       </div>
     </header>
   `
+}
+
+/**
+ * モバイルメニュー切り替え
+ */
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu')
+  const button = document.getElementById('mobile-menu-button')
+  const icon = button.querySelector('i')
+  
+  if (menu.classList.contains('hidden')) {
+    menu.classList.remove('hidden')
+    icon.classList.remove('fa-bars')
+    icon.classList.add('fa-times')
+  } else {
+    menu.classList.add('hidden')
+    icon.classList.remove('fa-times')
+    icon.classList.add('fa-bars')
+  }
 }
 
 /**

@@ -490,6 +490,63 @@ app.delete('/api/admin/local-spots/:id', async (c) => {
 })
 
 // ==========================================
+// SEO対策ルート
+// ==========================================
+
+/**
+ * GET /robots.txt - Robotsファイル
+ */
+app.get('/robots.txt', async (c) => {
+  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
+  
+  return c.text(`User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/admin/
+
+Sitemap: ${siteUrl}/sitemap.xml`)
+})
+
+/**
+ * GET /sitemap.xml - サイトマップ
+ */
+app.get('/sitemap.xml', async (c) => {
+  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
+  
+  // チーム一覧を取得
+  const teams = await c.env.DB.prepare('SELECT id FROM teams').all()
+  
+  // ガイド記事一覧を取得
+  const guides = await c.env.DB.prepare('SELECT slug FROM guide_articles WHERE is_published = 1').all()
+  
+  const teamUrls = teams.results.map((team: any) => `
+  <url>
+    <loc>${siteUrl}/team/${team.id}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('')
+  
+  const guideUrls = guides.results.map((guide: any) => `
+  <url>
+    <loc>${siteUrl}/guide/${guide.slug}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`).join('')
+  
+  return c.text(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteUrl}/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>${teamUrls}${guideUrls}
+</urlset>`, 200, { 'Content-Type': 'application/xml' })
+})
+
+// ==========================================
 // フロントエンドページ
 // ==========================================
 
@@ -497,13 +554,67 @@ app.delete('/api/admin/local-spots/:id', async (c) => {
  * GET / - メインページ
  */
 app.get('/', async (c) => {
+  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
+  
   return c.html(`<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>とちスポLIFE - TOCHIGI SPORTS LIFE</title>
-    <meta name="description" content="栃木のプロスポーツをもっと身近に。栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト。">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | TOCHIGI SPORTS LIFE</title>
+    <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
+    <meta name="keywords" content="栃木,スポーツ,プロスポーツ,宇都宮ブレックス,栃木SC,アイスバックス,ブリッツェン,ゴールデンブレーブス,栃木シティFC,バスケットボール,サッカー,アイスホッケー,野球,サイクルロードレース">
+    <meta name="author" content="とちスポLIFE">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="${siteUrl}/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="${siteUrl}/">
+    <meta property="og:title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta property="og:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。宇都宮ブレックス、栃木SC、アイスバックスなど栃木のスポーツを応援しよう！">
+    <meta property="og:image" content="${siteUrl}/static/og-image.png">
+    <meta property="og:site_name" content="とちスポLIFE">
+    <meta property="og:locale" content="ja_JP">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="${siteUrl}/">
+    <meta name="twitter:title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta name="twitter:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。">
+    <meta name="twitter:image" content="${siteUrl}/static/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsOrganization",
+      "name": "とちスポLIFE - TOCHIGI SPORTS LIFE",
+      "description": "栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト",
+      "url": "${siteUrl}",
+      "logo": "${siteUrl}/static/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "栃木県",
+        "addressCountry": "JP"
+      },
+      "sameAs": [],
+      "sport": ["バスケットボール", "サッカー", "アイスホッケー", "サイクルロードレース", "野球"]
+    }
+    </script>
+    
+    <!-- Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <link href="/static/style.css" rel="stylesheet">
