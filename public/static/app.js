@@ -210,8 +210,8 @@ function renderHero() {
   return `
     <section class="hero-section">
       <div id="hero-slider" class="relative w-full h-full">
-        <!-- スライド1: スタジアム観客 -->
-        <div class="hero-slide active absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
+        <!-- スライド1: 熱狂する観客 -->
+        <div class="hero-slide active absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
           <div class="container mx-auto px-4">
             <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
               <i class="fas fa-fire mr-3 text-yellow-400"></i>
@@ -226,8 +226,8 @@ function renderHero() {
           </div>
         </div>
         
-        <!-- スライド2: バスケットボール -->
-        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
+        <!-- スライド2: バスケットボールの熱戦 -->
+        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1504450758481-7338eba7524a?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
           <div class="container mx-auto px-4">
             <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
               <i class="fas fa-users mr-3 text-green-400"></i>
@@ -242,8 +242,8 @@ function renderHero() {
           </div>
         </div>
         
-        <!-- スライド3: サッカースタジアム -->
-        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
+        <!-- スライド3: サッカーの歓喜の瞬間 -->
+        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
           <div class="container mx-auto px-4">
             <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
               <i class="fas fa-book-open mr-3 text-yellow-400"></i>
