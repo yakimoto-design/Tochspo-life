@@ -120,7 +120,7 @@ app.get('/api/players/featured', async (c) => {
     LEFT JOIN teams t ON p.team_id = t.id
     WHERE p.is_featured = 1
     ORDER BY RANDOM()
-    LIMIT 6
+    LIMIT 12
   `).all()
   return c.json(players.results)
 })

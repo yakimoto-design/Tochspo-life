@@ -383,6 +383,82 @@ function renderUpcomingMatches(matches) {
 }
 
 /**
+ * 注目選手セクションをレンダリング
+ */
+function renderFeaturedPlayers(players) {
+  if (!players || players.length === 0) {
+    return ''
+  }
+  
+  return `
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="section-header">
+          <h2 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-star mr-2 text-yellow-500"></i>
+            注目選手
+          </h2>
+          <p class="text-gray-600 mt-2">栃木のトップアスリートたち</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          ${players.slice(0, 8).map(player => `
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
+                ${player.photo_url ? `
+                  <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
+                ` : `
+                  <div class="text-white text-6xl">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                `}
+                <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                  <i class="fas fa-star mr-1"></i>注目
+                </div>
+              </div>
+              
+              <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-lg font-bold text-gray-800">${player.name}</h3>
+                  ${player.uniform_number ? `
+                    <span class="text-2xl font-bold text-blue-600">#${player.uniform_number}</span>
+                  ` : ''}
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-2">
+                  <i class="fas ${getSportIcon(player.sport_type)} mr-1"></i>
+                  ${player.team_name}
+                </p>
+                
+                ${player.position ? `
+                  <p class="text-sm text-gray-600 mb-2">
+                    <i class="fas fa-running mr-1"></i>
+                    ${player.position}
+                  </p>
+                ` : ''}
+                
+                <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                  ${player.height ? `
+                    <span><i class="fas fa-arrows-alt-v mr-1"></i>${player.height}cm</span>
+                  ` : ''}
+                  ${player.weight ? `
+                    <span><i class="fas fa-weight mr-1"></i>${player.weight}kg</span>
+                  ` : ''}
+                </div>
+                
+                ${player.bio ? `
+                  <p class="text-sm text-gray-600 line-clamp-2">${player.bio}</p>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
  * チーム一覧セクションをレンダリング
  */
 function renderTeams(teams) {
@@ -548,6 +624,7 @@ async function renderMainPage() {
     renderHero() +
     renderStats(AppState.stats) +
     renderUpcomingMatches(AppState.matches) +
+    renderFeaturedPlayers(AppState.featuredPlayers) +
     renderTeams(AppState.teams) +
     renderGuides(AppState.guides) +
     renderFooter()
