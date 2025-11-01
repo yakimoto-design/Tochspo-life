@@ -81,9 +81,10 @@ body {
 
 /* フッター */
 .site-footer {
-  background: linear-gradient(135deg, #1e3a8a 0%, #6366f1 100%);
+  background: #000000;
   color: white;
   padding: 3rem 0 1rem;
+  border-top: 3px solid #FBBF24;
 }
 
 .site-footer a {
