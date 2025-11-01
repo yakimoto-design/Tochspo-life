@@ -727,7 +727,7 @@ function showAddMatchModal() {
             
             <div class="mb-4">
               <label class="block text-sm font-bold text-gray-700 mb-2">試合日時 <span class="text-red-500">*</span></label>
-              <input type="datetime-local" name="match_datetime" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+              <input type="datetime-local" name="match_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             
             <div class="mb-4">
@@ -770,7 +770,7 @@ function showAddMatchModal() {
     const data = {
       team_id: parseInt(formData.get('team_id')),
       opponent_team: formData.get('opponent_team'),
-      match_datetime: formData.get('match_datetime'),
+      match_date: formData.get('match_date'),
       venue_id: parseInt(formData.get('venue_id')),
       ticket_url: formData.get('ticket_url') || null,
       notes: formData.get('notes') || null,
@@ -795,7 +795,7 @@ async function showEditMatchModal(id) {
   if (!match) return
   
   // datetime-local形式に変換（YYYY-MM-DDTHH:mm）
-  const matchDate = new Date(match.match_datetime)
+  const matchDate = new Date(match.match_date)
   const datetimeLocal = matchDate.toISOString().slice(0, 16)
   
   const modalHTML = `
@@ -826,7 +826,7 @@ async function showEditMatchModal(id) {
             
             <div class="mb-4">
               <label class="block text-sm font-bold text-gray-700 mb-2">試合日時 <span class="text-red-500">*</span></label>
-              <input type="datetime-local" name="match_datetime" value="${datetimeLocal}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="datetime-local" name="match_date" value="${datetimeLocal}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             
             <div class="mb-4">
@@ -868,7 +868,7 @@ async function showEditMatchModal(id) {
     const data = {
       team_id: parseInt(formData.get('team_id')),
       opponent_team: formData.get('opponent_team'),
-      match_datetime: formData.get('match_datetime'),
+      match_date: formData.get('match_date'),
       venue_id: parseInt(formData.get('venue_id')),
       ticket_url: formData.get('ticket_url') || null,
       notes: formData.get('notes') || null
