@@ -129,31 +129,37 @@ async function fetchStats() {
  */
 function renderHeader() {
   return `
-    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg sticky top-0 z-50">
+    <header class="bg-black text-white shadow-2xl sticky top-0 z-50 border-b-2 border-yellow-500">
       <div class="container mx-auto px-4">
-        <nav class="flex items-center justify-between py-4">
+        <nav class="flex items-center justify-between py-5">
           <div class="site-logo cursor-pointer" onclick="navigateTo('home')">
             <div>
               <div class="flex items-center">
-                <i class="fas fa-fire mr-2"></i>
-                TOCHIGI SPORTS LIFE
+                <i class="fas fa-fire mr-3 text-3xl text-yellow-500"></i>
+                <div>
+                  <div class="text-3xl font-black tracking-wider" style="letter-spacing: 2px;">
+                    TOCHIGI SPORTS LIFE
+                  </div>
+                  <div class="text-xs text-yellow-400 mt-1 font-semibold tracking-wide" style="letter-spacing: 1px;">
+                    栃木のプロスポーツをもっと身近に
+                  </div>
+                </div>
               </div>
-              <div class="text-xs text-blue-200 mt-1" style="font-weight: 400; letter-spacing: 0.5px;">栃木のプロスポーツをもっと身近に</div>
             </div>
           </div>
           
           <!-- デスクトップメニュー -->
-          <div class="hidden md:flex space-x-6 text-white">
-            <a href="#home" class="hover:text-blue-400 transition" onclick="navigateTo('home')">
+          <div class="hidden md:flex space-x-8 text-white text-sm font-bold">
+            <a href="#home" class="hover:text-yellow-400 transition duration-200" onclick="navigateTo('home')">
               <i class="fas fa-home mr-1"></i>ホーム
             </a>
-            <a href="#schedule" class="hover:text-blue-400 transition" onclick="scrollToSection('schedule')">
+            <a href="#schedule" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('schedule')">
               <i class="fas fa-calendar mr-1"></i>試合情報
             </a>
-            <a href="#teams" class="hover:text-blue-400 transition" onclick="scrollToSection('teams')">
+            <a href="#teams" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('teams')">
               <i class="fas fa-users mr-1"></i>チーム
             </a>
-            <a href="#guides" class="hover:text-blue-400 transition" onclick="scrollToSection('guides')">
+            <a href="#guides" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('guides')">
               <i class="fas fa-book mr-1"></i>コラム
             </a>
           </div>
@@ -166,16 +172,16 @@ function renderHeader() {
         
         <!-- モバイルメニュー -->
         <div id="mobile-menu" class="hidden md:hidden pb-4">
-          <a href="#home" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="navigateTo('home'); toggleMobileMenu()">
+          <a href="#home" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="navigateTo('home'); toggleMobileMenu()">
             <i class="fas fa-home mr-2"></i>ホーム
           </a>
-          <a href="#schedule" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('schedule'); toggleMobileMenu()">
+          <a href="#schedule" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('schedule'); toggleMobileMenu()">
             <i class="fas fa-calendar mr-2"></i>試合情報
           </a>
-          <a href="#teams" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('teams'); toggleMobileMenu()">
+          <a href="#teams" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('teams'); toggleMobileMenu()">
             <i class="fas fa-users mr-2"></i>チーム
           </a>
-          <a href="#guides" class="block py-2 px-4 hover:bg-blue-700 rounded transition" onclick="scrollToSection('guides'); toggleMobileMenu()">
+          <a href="#guides" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('guides'); toggleMobileMenu()">
             <i class="fas fa-book mr-2"></i>コラム
           </a>
         </div>
