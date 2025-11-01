@@ -1,0 +1,825 @@
+// ==========================================
+// TOCHIGI SPORTS LIFE - Frontend Application
+// ==========================================
+
+// dayjs日本語ロケール設定
+dayjs.locale('ja')
+
+// ==========================================
+// グローバル状態管理
+// ==========================================
+const AppState = {
+  currentPage: 'home',
+  teams: [],
+  matches: [],
+  players: [],
+  guides: [],
+  venues: [],
+  stats: {}
+}
+
+// ==========================================
+// ユーティリティ関数
+// ==========================================
+
+/**
+ * スポーツタイプに応じたアイコンを返す
+ */
+function getSportIcon(sportType) {
+  const icons = {
+    'バスケットボール': 'fa-basketball-ball',
+    'サッカー': 'fa-futbol',
+    'アイスホッケー': 'fa-hockey-puck',
+    'サイクルロードレース': 'fa-biking',
+    '野球': 'fa-baseball-ball'
+  }
+  return icons[sportType] || 'fa-trophy'
+}
+
+/**
+ * ページ遷移
+ */
+function navigateTo(page) {
+  AppState.currentPage = page
+  if (page === 'home') {
+    renderMainPage()
+  }
+}
+
+/**
+ * セクションへスクロール
+ */
+function scrollToSection(sectionId) {
+  const element = document.getElementById(sectionId)
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
+// ==========================================
+// データ取得関数
+// ==========================================
+
+/**
+ * 全チームを取得
+ */
+async function fetchTeams() {
+  try {
+    const response = await axios.get('/api/teams')
+    AppState.teams = response.data
+  } catch (error) {
+    console.error('チーム情報の取得に失敗しました:', error)
+  }
+}
+
+/**
+ * 今後の試合を取得
+ */
+async function fetchUpcomingMatches() {
+  try {
+    const response = await axios.get('/api/matches/upcoming?days=30')
+    AppState.matches = response.data
+  } catch (error) {
+    console.error('試合情報の取得に失敗しました:', error)
+  }
+}
+
+/**
+ * 注目選手を取得
+ */
+async function fetchFeaturedPlayers() {
+  try {
+    const response = await axios.get('/api/players/featured')
+    AppState.players = response.data
+  } catch (error) {
+    console.error('選手情報の取得に失敗しました:', error)
+  }
+}
+
+/**
+ * 観戦ガイドを取得
+ */
+async function fetchGuides() {
+  try {
+    const response = await axios.get('/api/guides')
+    AppState.guides = response.data
+  } catch (error) {
+    console.error('観戦ガイドの取得に失敗しました:', error)
+  }
+}
+
+/**
+ * サイト統計を取得
+ */
+async function fetchStats() {
+  try {
+    const response = await axios.get('/api/stats')
+    AppState.stats = response.data
+  } catch (error) {
+    console.error('統計情報の取得に失敗しました:', error)
+  }
+}
+
+// ==========================================
+// レンダリング関数
+// ==========================================
+
+/**
+ * ヘッダーをレンダリング
+ */
+function renderHeader() {
+  return `
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg sticky top-0 z-50">
+      <div class="container mx-auto px-4">
+        <nav class="flex items-center justify-between py-4">
+          <div class="site-logo cursor-pointer" onclick="navigateTo('home')">
+            <div>
+              <div class="flex items-center">
+                <i class="fas fa-fire mr-2"></i>
+                TOCHIGI SPORTS LIFE
+              </div>
+              <div class="text-xs text-blue-200 mt-1" style="font-weight: 400; letter-spacing: 0.5px;">栃木のプロスポーツをもっと身近に</div>
+            </div>
+          </div>
+          <div class="hidden md:flex space-x-6 text-white">
+            <a href="#home" class="hover:text-blue-400 transition" onclick="navigateTo('home')">
+              <i class="fas fa-home mr-1"></i>ホーム
+            </a>
+            <a href="#schedule" class="hover:text-blue-400 transition" onclick="scrollToSection('schedule')">
+              <i class="fas fa-calendar mr-1"></i>試合情報
+            </a>
+            <a href="#teams" class="hover:text-blue-400 transition" onclick="scrollToSection('teams')">
+              <i class="fas fa-users mr-1"></i>チーム
+            </a>
+            <a href="#guides" class="hover:text-blue-400 transition" onclick="scrollToSection('guides')">
+              <i class="fas fa-book mr-1"></i>コラム
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+  `
+}
+
+/**
+ * ヒーローセクションをレンダリング
+ */
+function renderHero() {
+  return `
+    <section class="hero-section">
+      <div id="hero-slider" class="relative w-full h-full">
+        <!-- スライド1 -->
+        <div class="hero-slide active absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500">
+          <div class="container mx-auto px-4">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+              <i class="fas fa-fire mr-3 text-yellow-400"></i>
+              栃木のプロスポーツを応援しよう
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 drop-shadow-lg">
+              6つのプロスポーツチームがあなたを待っている
+            </p>
+            <button onclick="scrollToSection('schedule')" class="bg-yellow-500 hover:bg-orange-500 text-gray-900 font-bold py-4 px-10 rounded-full text-lg transition transform hover:scale-105 shadow-2xl">
+              <i class="fas fa-calendar-alt mr-2"></i>今週末の試合を見る
+            </button>
+          </div>
+        </div>
+        
+        <!-- スライド2 -->
+        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500">
+          <div class="container mx-auto px-4">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+              <i class="fas fa-users mr-3 text-green-400"></i>
+              地元の選手を応援しよう
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 drop-shadow-lg">
+              栃木のヒーローは、すぐそこにいる
+            </p>
+            <button onclick="scrollToSection('players')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-lg transition transform hover:scale-105 shadow-2xl">
+              <i class="fas fa-star mr-2"></i>注目選手を見る
+            </button>
+          </div>
+        </div>
+        
+        <!-- スライド3 -->
+        <div class="hero-slide absolute inset-0 flex items-center justify-center text-center text-white transition-opacity duration-500">
+          <div class="container mx-auto px-4">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+              <i class="fas fa-book-open mr-3 text-yellow-400"></i>
+              観戦がもっと楽しくなる
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90 drop-shadow-lg">
+              5つのスポーツコラムで、あなたもファンに
+            </p>
+            <button onclick="scrollToSection('guides')" class="bg-yellow-500 hover:bg-orange-500 text-gray-900 font-bold py-4 px-10 rounded-full text-lg transition transform hover:scale-105 shadow-2xl">
+              <i class="fas fa-book-open mr-2"></i>コラムを読む
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * 統計セクションをレンダリング
+ */
+function renderStats(stats) {
+  return `
+    <section class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <!-- チーム数 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+            <div class="text-5xl font-bold text-blue-600 mb-2">${stats.teams || 6}</div>
+            <div class="text-gray-600 font-semibold">プロチーム</div>
+            <div class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-shield-alt mr-1"></i>5競技
+            </div>
+          </div>
+          
+          <!-- 今後の試合数 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+            <div class="text-5xl font-bold text-green-600 mb-2">${stats.upcoming_matches || 0}</div>
+            <div class="text-gray-600 font-semibold">今後の試合</div>
+            <div class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-calendar-alt mr-1"></i>ホームゲーム
+            </div>
+          </div>
+          
+          <!-- 選手数 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+            <div class="text-5xl font-bold text-purple-600 mb-2">${stats.players || 0}</div>
+            <div class="text-gray-600 font-semibold">登録選手</div>
+            <div class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-users mr-1"></i>地元のヒーロー
+            </div>
+          </div>
+          
+          <!-- コラム数 -->
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition">
+            <div class="text-5xl font-bold text-yellow-600 mb-2">${stats.guides || 0}</div>
+            <div class="text-gray-600 font-semibold">コラム</div>
+            <div class="text-xs text-gray-500 mt-2">
+              <i class="fas fa-book mr-1"></i>観戦ガイド
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * 今週末の試合セクションをレンダリング
+ */
+function renderUpcomingMatches(matches) {
+  if (matches.length === 0) {
+    return `
+      <section id="schedule" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+          <div class="section-header">
+            <h2 class="text-3xl font-bold text-gray-800">
+              <i class="fas fa-calendar-alt mr-2"></i>
+              今週末のホームゲーム
+            </h2>
+            <p class="text-gray-600 mt-2">現在予定されている試合はありません</p>
+          </div>
+        </div>
+      </section>
+    `
+  }
+  
+  return `
+    <section id="schedule" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="section-header">
+          <h2 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            今週末のホームゲーム
+          </h2>
+          <p class="text-gray-600 mt-2">栃木で開催される試合をチェック</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${matches.slice(0, 6).map(match => `
+            <div class="match-card">
+              <div class="flex items-center justify-between mb-4">
+                <span class="sport-badge" style="background-color: ${match.primary_color || '#3B82F6'}">
+                  <i class="fas ${getSportIcon(match.sport_type)} mr-1"></i>
+                  ${match.sport_type}
+                </span>
+                <span class="text-sm text-gray-500">
+                  <i class="fas fa-calendar mr-1"></i>
+                  ${dayjs(match.match_date).format('M/D(ddd) HH:mm')}
+                </span>
+              </div>
+              
+              <div class="mb-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">${match.team_name}</h3>
+                <p class="text-gray-600">
+                  <i class="fas fa-handshake mr-2"></i>
+                  vs ${match.opponent_team}
+                </p>
+              </div>
+              
+              <div class="text-sm text-gray-600 mb-4">
+                <i class="fas fa-map-marker-alt mr-2"></i>
+                ${match.venue_name || '会場未定'}
+              </div>
+              
+              ${match.ticket_url ? `
+                <a href="${match.ticket_url}" target="_blank" rel="noopener" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition text-center block">
+                  <i class="fas fa-ticket-alt mr-2"></i>チケット購入
+                </a>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * チーム一覧セクションをレンダリング
+ */
+function renderTeams(teams) {
+  return `
+    <section id="teams" class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="section-header">
+          <h2 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-shield-alt mr-2"></i>
+            栃木の6つのプロスポーツチーム
+          </h2>
+          <p class="text-gray-600 mt-2">地元で活躍するプロチーム</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${teams.map(team => `
+            <div class="team-card">
+              <div class="flex items-center mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mr-4">
+                  <i class="fas ${getSportIcon(team.sport_type)} text-3xl text-blue-600"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-gray-800">${team.name}</h3>
+                  <p class="text-sm text-gray-600">${team.sport_type}</p>
+                  <p class="text-xs text-gray-500">${team.league || ''}</p>
+                </div>
+              </div>
+              
+              ${team.description ? `
+                <p class="text-gray-600 text-sm mb-4">${team.description.substring(0, 80)}...</p>
+              ` : ''}
+              
+              ${team.website_url ? `
+                <a href="${team.website_url}" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                  公式サイトへ <i class="fas fa-external-link-alt ml-1"></i>
+                </a>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * 観戦ガイドセクションをレンダリング
+ */
+function renderGuides(guides) {
+  if (guides.length === 0) {
+    return ''
+  }
+  
+  return `
+    <section id="guides" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="section-header">
+          <h2 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-book-open mr-2"></i>
+            観戦が楽しくなるコラム
+          </h2>
+          <p class="text-gray-600 mt-2">スポーツをもっと楽しむための読み物</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${guides.map(guide => `
+            <div class="guide-card p-6 cursor-pointer" onclick="showGuideDetail('${guide.slug}')">
+              <div class="flex items-center mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mr-4">
+                  <i class="fas ${guide.icon || getSportIcon(guide.sport_type)} text-3xl text-orange-600"></i>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-xl font-bold text-gray-800 mb-1">${guide.title}</h3>
+                  <span class="text-xs text-gray-500">${guide.sport_type}</span>
+                </div>
+              </div>
+              <p class="text-gray-600 text-sm mb-4">
+                ${guide.description ? guide.description.substring(0, 100) : guide.content.substring(0, 100)}...
+              </p>
+              <div class="text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                詳しく見る <i class="fas fa-arrow-right ml-1"></i>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <!-- もっと見るボタン -->
+        <div class="text-center mt-12">
+          <button onclick="showAllGuides()" class="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold py-4 px-12 rounded-lg text-lg transition shadow-lg">
+            <i class="fas fa-book-open mr-2"></i>もっと見る - 全コラム一覧
+          </button>
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * フッターをレンダリング
+ */
+function renderFooter() {
+  return `
+    <footer class="site-footer">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h3 class="text-white font-bold mb-4">TOCHIGI SPORTS LIFE</h3>
+            <p class="text-sm">
+              栃木のプロスポーツをもっと身近に。<br>
+              栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト。
+            </p>
+          </div>
+          <div>
+            <h3 class="text-white font-bold mb-4">対象チーム</h3>
+            <ul class="text-sm space-y-1">
+              <li>宇都宮ブレックス（バスケットボール）</li>
+              <li>栃木SC（サッカー）</li>
+              <li>H.C.栃木日光アイスバックス（アイスホッケー）</li>
+              <li>宇都宮ブリッツェン（サイクルロードレース）</li>
+              <li>栃木ゴールデンブレーブス（野球）</li>
+              <li>栃木シティフットボールクラブ（サッカー）</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-white font-bold mb-4">リンク</h3>
+            <ul class="text-sm space-y-2">
+              <li><a href="#home" onclick="navigateTo('home')"><i class="fas fa-home mr-2"></i>ホーム</a></li>
+              <li><a href="#schedule" onclick="scrollToSection('schedule')"><i class="fas fa-calendar mr-2"></i>今週末の試合</a></li>
+              <li><a href="#teams" onclick="scrollToSection('teams')"><i class="fas fa-users mr-2"></i>チーム一覧</a></li>
+              <li><a href="#guides" onclick="scrollToSection('guides')"><i class="fas fa-book mr-2"></i>コラム</a></li>
+              <li><a href="javascript:void(0)" onclick="showOperatorInfo()"><i class="fas fa-info-circle mr-2"></i>運営事務局</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 pt-6 text-center text-sm">
+          <p>&copy; 2025 TOCHIGI SPORTS LIFE. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  `
+}
+
+/**
+ * メインページをレンダリング
+ */
+async function renderMainPage() {
+  const app = document.getElementById('app')
+  
+  // ローディング表示
+  app.innerHTML = renderHeader() + '<div class="container mx-auto px-4 py-12"><div class="text-center"><div class="loading mx-auto"></div><p class="mt-4 text-gray-600">読み込み中...</p></div></div>'
+  
+  // データ取得
+  await Promise.all([
+    fetchTeams(),
+    fetchUpcomingMatches(),
+    fetchFeaturedPlayers(),
+    fetchGuides(),
+    fetchStats()
+  ])
+  
+  // ページレンダリング
+  app.innerHTML = 
+    renderHeader() +
+    renderHero() +
+    renderStats(AppState.stats) +
+    renderUpcomingMatches(AppState.matches) +
+    renderTeams(AppState.teams) +
+    renderGuides(AppState.guides) +
+    renderFooter()
+  
+  // ヒーロースライダー初期化
+  initHeroSlider()
+}
+
+/**
+ * ヒーロースライダーを初期化
+ */
+function initHeroSlider() {
+  let currentSlide = 0
+  const slides = document.querySelectorAll('.hero-slide')
+  
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.remove('active')
+      if (i === index) {
+        slide.classList.add('active')
+      }
+    })
+  }
+  
+  setInterval(() => {
+    currentSlide = (currentSlide + 1) % slides.length
+    showSlide(currentSlide)
+  }, 5000)
+}
+
+/**
+ * 記事詳細ページを表示
+ */
+async function renderGuideDetail(slug) {
+  const app = document.getElementById('app')
+  
+  // ローディング表示
+  app.innerHTML = renderHeader() + '<div class="container mx-auto px-4 py-12"><div class="text-center"><div class="loading mx-auto"></div><p class="mt-4 text-gray-600">読み込み中...</p></div></div>'
+  
+  try {
+    const response = await axios.get(`/api/guides/${slug}`)
+    const guide = response.data
+    
+    // HTMLコンテンツをそのまま使用（管理画面で入力済み）
+    let contentHtml = guide.content
+    
+    // もしMarkdown形式の場合は変換
+    if (!contentHtml.includes('<')) {
+      contentHtml = guide.content
+        .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold mb-4 mt-8 text-gray-800">$1</h1>')
+        .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold mb-3 mt-6 text-gray-800">$1</h2>')
+        .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold mb-2 mt-4 text-gray-700">$1</h3>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+        .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
+      
+      // リストアイテムを<ul>タグで囲む
+      contentHtml = contentHtml.replace(/((?:^- .+$\n?)+)/gm, '<ul class="list-disc list-inside mb-4 ml-4 space-y-2">$1</ul>')
+      contentHtml = contentHtml.replace(/^- (.+)$/gm, '<li class="text-gray-700">$1</li>')
+    }
+    
+    app.innerHTML = renderHeader() + `
+      <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+          <button onclick="showAllGuides()" class="mb-4 text-gray-600 hover:text-gray-800">
+            <i class="fas fa-arrow-left mr-2"></i>記事一覧に戻る
+          </button>
+          
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-green-700 to-yellow-600 text-white p-8">
+              <div class="text-6xl mb-4">
+                <i class="fas ${guide.icon || getSportIcon(guide.sport_type)} text-yellow-400"></i>
+              </div>
+              <h1 class="text-4xl font-bold mb-2">${guide.title}</h1>
+              ${guide.description ? `<p class="text-xl opacity-90">${guide.description}</p>` : `<p class="text-xl opacity-90">${guide.sport_type}の観戦を楽しもう！</p>`}
+            </div>
+            
+            ${guide.image_url ? `
+              <img src="${guide.image_url}" alt="${guide.title}" class="w-full h-64 object-cover">
+            ` : ''}
+            
+            <div class="p-8">
+              <div class="prose prose-lg max-w-none">
+                ${contentHtml}
+              </div>
+              
+              <div class="mt-12 p-6 bg-blue-50 rounded-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">
+                  <i class="fas fa-bullhorn mr-2 text-blue-600"></i>
+                  さあ、試合を観に行こう！
+                </h3>
+                <p class="text-gray-700 mb-4">
+                  このガイドを参考に、${guide.sport_type}の試合を観戦してみましょう。<br>
+                  初めての方でも、きっと楽しめます！
+                </p>
+                <button onclick="navigateTo('home')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition">
+                  <i class="fas fa-home mr-2"></i>トップページに戻る
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ` + renderFooter()
+    
+  } catch (error) {
+    console.error('ガイド情報の読み込みに失敗しました:', error)
+    app.innerHTML = renderHeader() + `
+      <div class="container mx-auto px-4 py-12 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">エラーが発生しました</h2>
+        <p class="text-gray-600 mb-6">ガイド情報の読み込みに失敗しました。</p>
+        <button onclick="navigateTo('home')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg">
+          <i class="fas fa-home mr-2"></i>トップページに戻る
+        </button>
+      </div>
+    ` + renderFooter()
+  }
+}
+
+/**
+ * 記事一覧ページをレンダリング
+ */
+async function renderGuidesList() {
+  const app = document.getElementById('app')
+  
+  // ローディング表示
+  app.innerHTML = renderHeader() + '<div class="container mx-auto px-4 py-12"><div class="text-center"><div class="loading mx-auto"></div><p class="mt-4 text-gray-600">読み込み中...</p></div></div>'
+  
+  try {
+    const response = await axios.get('/api/guides')
+    const guides = response.data
+    
+    // スポーツ種目でグループ化
+    const groupedGuides = {}
+    guides.forEach(guide => {
+      if (!groupedGuides[guide.sport_type]) {
+        groupedGuides[guide.sport_type] = []
+      }
+      groupedGuides[guide.sport_type].push(guide)
+    })
+    
+    app.innerHTML = renderHeader() + `
+      <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+          <button onclick="navigateTo('home')" class="mb-4 text-gray-600 hover:text-gray-800">
+            <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+          </button>
+          
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-orange-600 to-red-600 text-white p-8">
+              <h1 class="text-4xl font-bold mb-2">
+                <i class="fas fa-book-open mr-3"></i>観戦が楽しくなるコラム
+              </h1>
+              <p class="text-xl opacity-90">スポーツをもっと楽しむための読み物集</p>
+            </div>
+          </div>
+          
+          ${Object.keys(groupedGuides).length > 0 ? Object.keys(groupedGuides).map(sportType => `
+            <div class="mb-12">
+              <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas ${getSportIcon(sportType)} text-blue-600 mr-3"></i>
+                ${sportType}
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ${groupedGuides[sportType].map(guide => `
+                  <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer" onclick="showGuideDetail('${guide.slug}')">
+                    <div class="p-6">
+                      <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mr-4">
+                          <i class="fas ${guide.icon || getSportIcon(guide.sport_type)} text-3xl text-orange-600"></i>
+                        </div>
+                        <div class="flex-1">
+                          <h3 class="text-xl font-bold text-gray-800 mb-1">${guide.title}</h3>
+                          <span class="text-xs text-gray-500">${guide.sport_type}</span>
+                        </div>
+                      </div>
+                      
+                      ${guide.description ? `
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">${guide.description}</p>
+                      ` : `
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">${guide.content.substring(0, 100)}...</p>
+                      `}
+                      
+                      <div class="flex items-center text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        <span>詳しく見る</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('') : `
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+              <i class="fas fa-book text-6xl text-gray-300 mb-4"></i>
+              <p class="text-gray-600 text-lg">まだ記事がありません</p>
+            </div>
+          `}
+        </div>
+      </div>
+    ` + renderFooter()
+    
+  } catch (error) {
+    console.error('ガイド一覧の取得に失敗しました:', error)
+    app.innerHTML = renderHeader() + `
+      <div class="container mx-auto px-4 py-12 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">エラーが発生しました</h2>
+        <p class="text-gray-600 mb-6">ガイド一覧の読み込みに失敗しました。</p>
+        <button onclick="navigateTo('home')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg">
+          <i class="fas fa-home mr-2"></i>トップページに戻る
+        </button>
+      </div>
+    ` + renderFooter()
+  }
+}
+
+/**
+ * 記事詳細ページを表示
+ */
+function showGuideDetail(slug) {
+  window.scrollTo(0, 0)
+  renderGuideDetail(slug)
+}
+
+/**
+ * 記事一覧ページを表示
+ */
+function showAllGuides() {
+  window.scrollTo(0, 0)
+  renderGuidesList()
+}
+
+/**
+ * 運営者情報ページを表示
+ */
+function showOperatorInfo() {
+  const app = document.getElementById('app')
+  app.innerHTML = renderHeader() + `
+    <div class="bg-gray-50 min-h-screen">
+      <div class="container mx-auto px-4 py-8">
+        <button onclick="navigateTo('home')" class="mb-4 text-gray-600 hover:text-gray-800">
+          <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+        </button>
+        
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden max-w-3xl mx-auto">
+          <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8">
+            <h1 class="text-4xl font-bold mb-2">
+              <i class="fas fa-info-circle mr-3"></i>運営事務局
+            </h1>
+            <p class="text-xl opacity-90">TOCHIGI SPORTS LIFE運営事務局</p>
+          </div>
+          
+          <div class="p-8">
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-heart text-red-500 mr-2"></i>サイトについて
+              </h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                「TOCHIGI SPORTS LIFE（とちスポLIFE）」は、栃木県のプロスポーツを応援する情報サイトです。
+              </p>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティフットボールクラブの6チームの試合情報、選手紹介、観戦ガイドなどを掲載しています。
+              </p>
+              <p class="text-gray-700 leading-relaxed">
+                「栃木のプロスポーツをもっと身近に」をテーマに、地域の皆様がスポーツ観戦を楽しめるよう情報を発信しています。
+              </p>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-6">
+              <h2 class="text-xl font-bold text-gray-800 mb-4">運営事務局情報</h2>
+              <div class="space-y-3">
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">事務局名</p>
+                  <p class="text-gray-800 font-semibold">TOCHIGI SPORTS LIFE運営事務局</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">運営</p>
+                  <p class="text-gray-800">irohaコンサルティング</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">お問い合わせ</p>
+                  <p class="text-gray-800">
+                    <a href="mailto:info@irohacs.com" class="text-blue-600 hover:text-blue-800 underline">
+                      <i class="fas fa-envelope mr-2"></i>info@irohacs.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-8 border-t border-gray-200 pt-6">
+              <h3 class="text-lg font-bold text-gray-800 mb-3">
+                <i class="fas fa-question-circle text-blue-600 mr-2"></i>お問い合わせ
+              </h3>
+              <p class="text-gray-700 mb-4">
+                サイトに関するご質問・ご意見・情報提供などがございましたら、お気軽にお問い合わせください。
+              </p>
+              <a href="mailto:info@irohacs.com" class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition">
+                <i class="fas fa-envelope mr-2"></i>メールでお問い合わせ
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ` + renderFooter()
+}
+
+// ==========================================
+// アプリケーション初期化
+// ==========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('TOCHIGI SPORTS LIFE - アプリケーション起動')
+  renderMainPage()
+})
