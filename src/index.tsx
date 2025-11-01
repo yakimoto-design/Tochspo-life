@@ -333,12 +333,12 @@ app.delete('/api/admin/matches/:id', async (c) => {
  * POST /api/admin/players - 選手追加
  */
 app.post('/api/admin/players', async (c) => {
-  const { team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, is_featured } = await c.req.json()
+  const { team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, episode, is_featured } = await c.req.json()
   
   const result = await c.env.DB.prepare(`
-    INSERT INTO players (team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, is_featured)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, is_featured || 0).run()
+    INSERT INTO players (team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, episode, is_featured)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, episode, is_featured || 0).run()
   
   return c.json({ success: true, id: result.meta.last_row_id })
 })
@@ -348,14 +348,14 @@ app.post('/api/admin/players', async (c) => {
  */
 app.put('/api/admin/players/:id', async (c) => {
   const id = parseInt(c.req.param('id'))
-  const { team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, is_featured } = await c.req.json()
+  const { team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, episode, is_featured } = await c.req.json()
   
   await c.env.DB.prepare(`
     UPDATE players 
     SET team_id = ?, name = ?, uniform_number = ?, position = ?, height = ?, weight = ?, birthdate = ?, 
-        hometown = ?, photo_url = ?, bio = ?, is_featured = ?, updated_at = CURRENT_TIMESTAMP
+        hometown = ?, photo_url = ?, bio = ?, episode = ?, is_featured = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).bind(team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, is_featured, id).run()
+  `).bind(team_id, name, uniform_number, position, height, weight, birthdate, hometown, photo_url, bio, episode, is_featured, id).run()
   
   return c.json({ success: true })
 })

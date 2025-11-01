@@ -453,7 +453,16 @@ function renderFeaturedPlayers(players) {
                 </div>
                 
                 ${player.bio ? `
-                  <p class="text-sm text-gray-600 line-clamp-2">${player.bio}</p>
+                  <p class="text-sm text-gray-600 line-clamp-2 mb-2">${player.bio}</p>
+                ` : ''}
+                
+                ${player.episode ? `
+                  <div class="mt-2 pt-2 border-t border-gray-200">
+                    <p class="text-xs text-pink-600 font-bold mb-1">
+                      <i class="fas fa-heart mr-1"></i>エピソード
+                    </p>
+                    <p class="text-xs text-gray-600 line-clamp-3">${player.episode}</p>
+                  </div>
                 ` : ''}
               </div>
             </div>

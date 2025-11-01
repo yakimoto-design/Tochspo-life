@@ -969,13 +969,31 @@ function showAddPlayerModal() {
             </div>
             
             <div class="mb-4 md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">写真URL</label>
-              <input type="url" name="photo_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://...">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-image mr-1"></i>写真URL
+              </label>
+              <input type="url" name="photo_url" id="add_photo_url_input" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://example.com/photo.jpg" onchange="previewPlayerImage('add_photo_url_input', 'add_image_preview')">
+              <p class="text-xs text-gray-500 mt-1">画像のURL（https://）を入力してください。Unsplash、Imgur等の画像URLが使用できます。</p>
+              <div id="add_image_preview" class="mt-3 hidden">
+                <p class="text-sm font-bold text-gray-700 mb-2">プレビュー:</p>
+                <img src="" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
+              </div>
             </div>
             
             <div class="mb-4 md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">プロフィール</label>
-              <textarea name="bio" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="選手の経歴や特徴など"></textarea>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-id-card mr-1"></i>プロフィール
+              </label>
+              <textarea name="bio" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="選手の経歴や実績など（例：元日本代表。2020年MVP受賞。）"></textarea>
+              <p class="text-xs text-gray-500 mt-1">経歴、実績、プレースタイルなどの基本情報</p>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-heart mr-1 text-pink-500"></i>エピソード
+              </label>
+              <textarea name="episode" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="選手の人柄がわかるエピソードを記入してください（例：試合前は必ずチームメイトを鼓舞する言葉をかける。練習後も若手選手の相談に乗る姿が見られる。）"></textarea>
+              <p class="text-xs text-gray-500 mt-1">人柄や性格、習慣、ファンとの交流など、選手の個性が伝わるエピソード</p>
             </div>
             
             <div class="mb-4 md:col-span-2">
@@ -1015,6 +1033,7 @@ function showAddPlayerModal() {
       hometown: formData.get('hometown') || null,
       photo_url: formData.get('photo_url') || null,
       bio: formData.get('bio') || null,
+      episode: formData.get('episode') || null,
       is_featured: formData.get('is_featured') ? 1 : 0
     }
     
@@ -1090,13 +1109,31 @@ async function showEditPlayerModal(id) {
             </div>
             
             <div class="mb-4 md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">写真URL</label>
-              <input type="url" name="photo_url" value="${player.photo_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-image mr-1"></i>写真URL
+              </label>
+              <input type="url" name="photo_url" id="edit_photo_url_input" value="${player.photo_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="previewPlayerImage('edit_photo_url_input', 'edit_image_preview')">
+              <p class="text-xs text-gray-500 mt-1">画像のURL（https://）を入力してください。Unsplash、Imgur等の画像URLが使用できます。</p>
+              <div id="edit_image_preview" class="mt-3 ${player.photo_url ? '' : 'hidden'}">
+                <p class="text-sm font-bold text-gray-700 mb-2">プレビュー:</p>
+                <img src="${player.photo_url || ''}" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
+              </div>
             </div>
             
             <div class="mb-4 md:col-span-2">
-              <label class="block text-sm font-bold text-gray-700 mb-2">プロフィール</label>
-              <textarea name="bio" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${player.bio || ''}</textarea>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-id-card mr-1"></i>プロフィール
+              </label>
+              <textarea name="bio" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${player.bio || ''}</textarea>
+              <p class="text-xs text-gray-500 mt-1">経歴、実績、プレースタイルなどの基本情報</p>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-heart mr-1 text-pink-500"></i>エピソード
+              </label>
+              <textarea name="episode" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${player.episode || ''}</textarea>
+              <p class="text-xs text-gray-500 mt-1">人柄や性格、習慣、ファンとの交流など、選手の個性が伝わるエピソード</p>
             </div>
             
             <div class="mb-4 md:col-span-2">
@@ -1136,6 +1173,7 @@ async function showEditPlayerModal(id) {
       hometown: formData.get('hometown') || null,
       photo_url: formData.get('photo_url') || null,
       bio: formData.get('bio') || null,
+      episode: formData.get('episode') || null,
       is_featured: formData.get('is_featured') ? 1 : 0
     }
     
@@ -1209,3 +1247,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     `
   }
 })
+
+/**
+ * 画像プレビュー機能
+ * @param {string} inputId - 入力フィールドのID
+ * @param {string} previewId - プレビュー要素のID
+ */
+function previewPlayerImage(inputId, previewId) {
+  const input = document.getElementById(inputId)
+  const preview = document.getElementById(previewId)
+  const img = preview.querySelector('img')
+  
+  if (!input || !preview || !img) return
+  
+  const url = input.value.trim()
+  
+  if (url && url.startsWith('http')) {
+    // URLが入力されている場合、プレビューを表示
+    img.src = url
+    img.onerror = function() {
+      // 画像の読み込みに失敗した場合
+      preview.classList.add('hidden')
+      alert('画像の読み込みに失敗しました。URLを確認してください。')
+    }
+    img.onload = function() {
+      // 画像の読み込みに成功した場合、プレビューを表示
+      preview.classList.remove('hidden')
+    }
+  } else {
+    // URLが空の場合、プレビューを非表示
+    preview.classList.add('hidden')
+  }
+}
