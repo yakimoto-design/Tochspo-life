@@ -351,21 +351,27 @@ function renderUpcomingMatches(matches) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           ${matches.slice(0, 6).map(match => `
             <div class="match-card">
-              <div class="flex items-center justify-between mb-4">
-                <span class="sport-badge" style="background-color: ${match.primary_color || '#3B82F6'}">
-                  <i class="fas ${getSportIcon(match.sport_type)} mr-1"></i>
-                  ${match.sport_type}
-                </span>
-                <span class="text-sm text-gray-500">
+              <!-- 日付 -->
+              <div class="text-center mb-2">
+                <span class="inline-block bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-bold">
                   <i class="fas fa-calendar mr-1"></i>
-                  ${dayjs(match.match_date).format('M/D(ddd)')}
+                  ${dayjs(match.match_date).format('M月D日(ddd)')}
                 </span>
               </div>
               
-              <!-- キックオフ時間 - 大きく表示 -->
-              <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4 text-center border-2 border-blue-200">
-                <p class="text-xs text-gray-600 mb-1 font-bold uppercase tracking-wide">KICK OFF</p>
-                <p class="text-4xl font-black text-blue-600">${dayjs(match.match_date).format('HH:mm')}</p>
+              <!-- キックオフ時間 - 超特大で真ん中に表示 -->
+              <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 mb-6 text-center shadow-xl transform hover:scale-105 transition-transform duration-300">
+                <div class="absolute top-0 left-0 right-0 bottom-0 bg-white opacity-10 rounded-2xl"></div>
+                <p class="relative text-sm text-white mb-2 font-bold uppercase tracking-widest opacity-90">⚽ KICK OFF</p>
+                <p class="relative text-7xl font-black text-white drop-shadow-2xl" style="text-shadow: 0 4px 20px rgba(0,0,0,0.3);">${dayjs(match.match_date).format('HH:mm')}</p>
+              </div>
+              
+              <!-- スポーツバッジ -->
+              <div class="text-center mb-4">
+                <span class="sport-badge inline-block" style="background-color: ${match.primary_color || '#3B82F6'}">
+                  <i class="fas ${getSportIcon(match.sport_type)} mr-1"></i>
+                  ${match.sport_type}
+                </span>
               </div>
               
               <div class="mb-4">
