@@ -501,8 +501,15 @@ async function renderTeamsManager() {
 }
 
 async function renderMatchesManager() {
-  const response = await axios.get('/api/matches')
-  AdminState.matches = response.data
+  const [matchesRes, teamsRes, venuesRes] = await Promise.all([
+    axios.get('/api/matches'),
+    axios.get('/api/teams'),
+    axios.get('/api/venues')
+  ])
+  
+  AdminState.matches = matchesRes.data
+  AdminState.teams = teamsRes.data
+  AdminState.venues = venuesRes.data
   
   const app = document.getElementById('admin-app')
   app.innerHTML = `
@@ -522,7 +529,12 @@ async function renderMatchesManager() {
       
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4">登録済み試合一覧（${AdminState.matches.length}試合）</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">登録済み試合一覧（${AdminState.matches.length}試合）</h2>
+            <button onclick="showAddMatchModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-plus mr-2"></i>試合を追加
+            </button>
+          </div>
           <div class="overflow-x-auto">
             <table class="min-w-full">
               <thead class="bg-gray-50">
@@ -531,15 +543,24 @@ async function renderMatchesManager() {
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">チーム</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">対戦相手</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">会場</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                ${AdminState.matches.slice(0, 20).map(match => `
+                ${AdminState.matches.slice(0, 50).map(match => `
                   <tr>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${dayjs(match.match_date).format('YYYY/MM/DD HH:mm')}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${match.team_name}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">vs ${match.opponent_team}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${match.venue_name || '-'}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button onclick="showEditMatchModal(${match.id})" class="text-blue-600 hover:text-blue-800 mr-3">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deleteMatch(${match.id}, '${match.team_name} vs ${match.opponent_team}')" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -552,8 +573,13 @@ async function renderMatchesManager() {
 }
 
 async function renderPlayersManager() {
-  const response = await axios.get('/api/players')
-  AdminState.players = response.data
+  const [playersRes, teamsRes] = await Promise.all([
+    axios.get('/api/players'),
+    axios.get('/api/teams')
+  ])
+  
+  AdminState.players = playersRes.data
+  AdminState.teams = teamsRes.data
   
   const app = document.getElementById('admin-app')
   app.innerHTML = `
@@ -573,7 +599,12 @@ async function renderPlayersManager() {
       
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4">登録済み選手一覧（${AdminState.players.length}名）</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">登録済み選手一覧（${AdminState.players.length}名）</h2>
+            <button onclick="showAddPlayerModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-plus mr-2"></i>選手を追加
+            </button>
+          </div>
           <div class="overflow-x-auto">
             <table class="min-w-full">
               <thead class="bg-gray-50">
@@ -582,15 +613,24 @@ async function renderPlayersManager() {
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">チーム</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">背番号</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ポジション</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                ${AdminState.players.slice(0, 20).map(player => `
+                ${AdminState.players.slice(0, 50).map(player => `
                   <tr>
                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${player.team_name}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${player.uniform_number || '-'}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${player.position || '-'}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button onclick="showEditPlayerModal(${player.id})" class="text-blue-600 hover:text-blue-800 mr-3">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deletePlayer(${player.id}, '${player.name}')" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -651,6 +691,484 @@ async function renderLocalSpotsManager() {
       </div>
     </div>
   `
+}
+
+// ==========================================
+// 試合管理モーダル
+// ==========================================
+
+function showAddMatchModal() {
+  const modalHTML = `
+    <div id="match-modal" class="modal active">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle mr-2 text-green-600"></i>新規試合追加
+          </h2>
+          <button onclick="closeMatchModal()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="match-form" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チーム <span class="text-red-500">*</span></label>
+              <select name="team_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="">選択してください</option>
+                ${AdminState.teams.map(team => `<option value="${team.id}">${team.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">対戦相手 <span class="text-red-500">*</span></label>
+              <input type="text" name="opponent_team" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="例: 川崎ブレイブサンダース">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">試合日時 <span class="text-red-500">*</span></label>
+              <input type="datetime-local" name="match_datetime" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">会場 <span class="text-red-500">*</span></label>
+              <select name="venue_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="">選択してください</option>
+                ${AdminState.venues.map(venue => `<option value="${venue.id}">${venue.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チケットURL</label>
+              <input type="url" name="ticket_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="https://...">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+              <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="試合に関する追加情報"></textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeMatchModal()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">
+              <i class="fas fa-save mr-2"></i>保存
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML)
+  
+  document.getElementById('match-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      team_id: parseInt(formData.get('team_id')),
+      opponent_team: formData.get('opponent_team'),
+      match_datetime: formData.get('match_datetime'),
+      venue_id: parseInt(formData.get('venue_id')),
+      ticket_url: formData.get('ticket_url') || null,
+      notes: formData.get('notes') || null,
+      result: null,
+      home_score: null,
+      away_score: null
+    }
+    
+    try {
+      await axios.post('/api/admin/matches', data, { headers: getAuthHeaders() })
+      closeMatchModal()
+      alert('試合を追加しました！')
+      renderMatchesManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function showEditMatchModal(id) {
+  const match = AdminState.matches.find(m => m.id === id)
+  if (!match) return
+  
+  // datetime-local形式に変換（YYYY-MM-DDTHH:mm）
+  const matchDate = new Date(match.match_datetime)
+  const datetimeLocal = matchDate.toISOString().slice(0, 16)
+  
+  const modalHTML = `
+    <div id="match-modal" class="modal active">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-edit mr-2 text-blue-600"></i>試合編集
+          </h2>
+          <button onclick="closeMatchModal()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="match-form" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チーム <span class="text-red-500">*</span></label>
+              <select name="team_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                ${AdminState.teams.map(team => `<option value="${team.id}" ${match.team_id === team.id ? 'selected' : ''}>${team.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">対戦相手 <span class="text-red-500">*</span></label>
+              <input type="text" name="opponent_team" value="${match.opponent_team}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">試合日時 <span class="text-red-500">*</span></label>
+              <input type="datetime-local" name="match_datetime" value="${datetimeLocal}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">会場 <span class="text-red-500">*</span></label>
+              <select name="venue_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                ${AdminState.venues.map(venue => `<option value="${venue.id}" ${match.venue_id === venue.id ? 'selected' : ''}>${venue.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チケットURL</label>
+              <input type="url" name="ticket_url" value="${match.ticket_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+              <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${match.notes || ''}</textarea>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeMatchModal()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+              <i class="fas fa-save mr-2"></i>更新
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML)
+  
+  document.getElementById('match-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      team_id: parseInt(formData.get('team_id')),
+      opponent_team: formData.get('opponent_team'),
+      match_datetime: formData.get('match_datetime'),
+      venue_id: parseInt(formData.get('venue_id')),
+      ticket_url: formData.get('ticket_url') || null,
+      notes: formData.get('notes') || null
+    }
+    
+    try {
+      await axios.put(`/api/admin/matches/${id}`, data, { headers: getAuthHeaders() })
+      closeMatchModal()
+      alert('試合を更新しました！')
+      renderMatchesManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function deleteMatch(id, description) {
+  if (!confirm(`「${description}」を削除してもよろしいですか？`)) {
+    return
+  }
+  
+  try {
+    await axios.delete(`/api/admin/matches/${id}`, { headers: getAuthHeaders() })
+    alert('試合を削除しました')
+    renderMatchesManager()
+  } catch (error) {
+    alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+  }
+}
+
+function closeMatchModal() {
+  const modal = document.getElementById('match-modal')
+  if (modal) {
+    modal.remove()
+  }
+}
+
+// ==========================================
+// 選手管理モーダル
+// ==========================================
+
+function showAddPlayerModal() {
+  const modalHTML = `
+    <div id="player-modal" class="modal active">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle mr-2 text-purple-600"></i>新規選手追加
+          </h2>
+          <button onclick="closePlayerModal()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="player-form" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チーム <span class="text-red-500">*</span></label>
+              <select name="team_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option value="">選択してください</option>
+                ${AdminState.teams.map(team => `<option value="${team.id}">${team.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">選手名 <span class="text-red-500">*</span></label>
+              <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: 山田 太郎">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">背番号</label>
+              <input type="number" name="uniform_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: 10">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">ポジション</label>
+              <input type="text" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: フォワード">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">身長 (cm)</label>
+              <input type="number" name="height" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: 185">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">体重 (kg)</label>
+              <input type="number" name="weight" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: 80">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">生年月日</label>
+              <input type="date" name="birthdate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">出身地</label>
+              <input type="text" name="hometown" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="例: 栃木県宇都宮市">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">写真URL</label>
+              <input type="url" name="photo_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://...">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">プロフィール</label>
+              <textarea name="bio" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="選手の経歴や特徴など"></textarea>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="flex items-center">
+                <input type="checkbox" name="is_featured" value="1" class="mr-2">
+                <span class="text-sm font-bold text-gray-700">注目選手として表示</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closePlayerModal()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">
+              <i class="fas fa-save mr-2"></i>保存
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML)
+  
+  document.getElementById('player-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      team_id: parseInt(formData.get('team_id')),
+      name: formData.get('name'),
+      uniform_number: formData.get('uniform_number') ? parseInt(formData.get('uniform_number')) : null,
+      position: formData.get('position') || null,
+      height: formData.get('height') ? parseFloat(formData.get('height')) : null,
+      weight: formData.get('weight') ? parseFloat(formData.get('weight')) : null,
+      birthdate: formData.get('birthdate') || null,
+      hometown: formData.get('hometown') || null,
+      photo_url: formData.get('photo_url') || null,
+      bio: formData.get('bio') || null,
+      is_featured: formData.get('is_featured') ? 1 : 0
+    }
+    
+    try {
+      await axios.post('/api/admin/players', data, { headers: getAuthHeaders() })
+      closePlayerModal()
+      alert('選手を追加しました！')
+      renderPlayersManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function showEditPlayerModal(id) {
+  const player = AdminState.players.find(p => p.id === id)
+  if (!player) return
+  
+  const modalHTML = `
+    <div id="player-modal" class="modal active">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-edit mr-2 text-blue-600"></i>選手編集
+          </h2>
+          <button onclick="closePlayerModal()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="player-form" class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">チーム <span class="text-red-500">*</span></label>
+              <select name="team_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                ${AdminState.teams.map(team => `<option value="${team.id}" ${player.team_id === team.id ? 'selected' : ''}>${team.name}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">選手名 <span class="text-red-500">*</span></label>
+              <input type="text" name="name" value="${player.name}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">背番号</label>
+              <input type="number" name="uniform_number" value="${player.uniform_number || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">ポジション</label>
+              <input type="text" name="position" value="${player.position || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">身長 (cm)</label>
+              <input type="number" name="height" step="0.1" value="${player.height || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">体重 (kg)</label>
+              <input type="number" name="weight" step="0.1" value="${player.weight || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">生年月日</label>
+              <input type="date" name="birthdate" value="${player.birthdate || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-sm font-bold text-gray-700 mb-2">出身地</label>
+              <input type="text" name="hometown" value="${player.hometown || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">写真URL</label>
+              <input type="url" name="photo_url" value="${player.photo_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">プロフィール</label>
+              <textarea name="bio" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${player.bio || ''}</textarea>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
+              <label class="flex items-center">
+                <input type="checkbox" name="is_featured" value="1" ${player.is_featured ? 'checked' : ''} class="mr-2">
+                <span class="text-sm font-bold text-gray-700">注目選手として表示</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closePlayerModal()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
+              <i class="fas fa-save mr-2"></i>更新
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML)
+  
+  document.getElementById('player-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      team_id: parseInt(formData.get('team_id')),
+      name: formData.get('name'),
+      uniform_number: formData.get('uniform_number') ? parseInt(formData.get('uniform_number')) : null,
+      position: formData.get('position') || null,
+      height: formData.get('height') ? parseFloat(formData.get('height')) : null,
+      weight: formData.get('weight') ? parseFloat(formData.get('weight')) : null,
+      birthdate: formData.get('birthdate') || null,
+      hometown: formData.get('hometown') || null,
+      photo_url: formData.get('photo_url') || null,
+      bio: formData.get('bio') || null,
+      is_featured: formData.get('is_featured') ? 1 : 0
+    }
+    
+    try {
+      await axios.put(`/api/admin/players/${id}`, data, { headers: getAuthHeaders() })
+      closePlayerModal()
+      alert('選手を更新しました！')
+      renderPlayersManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function deletePlayer(id, name) {
+  if (!confirm(`「${name}」を削除してもよろしいですか？`)) {
+    return
+  }
+  
+  try {
+    await axios.delete(`/api/admin/players/${id}`, { headers: getAuthHeaders() })
+    alert('選手を削除しました')
+    renderPlayersManager()
+  } catch (error) {
+    alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+  }
+}
+
+function closePlayerModal() {
+  const modal = document.getElementById('player-modal')
+  if (modal) {
+    modal.remove()
+  }
 }
 
 // ==========================================
