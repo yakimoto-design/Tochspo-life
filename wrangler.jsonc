@@ -3,5 +3,12 @@
   "name": "webapp",
   "compatibility_date": "2025-11-01",
   "pages_build_output_dir": "./dist",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tochspo-life-production",
+      "database_id": "5bd7d9cb-bb81-45ee-a0c5-e3e1e8b4aaa5"
+    }
+  ]
 }
