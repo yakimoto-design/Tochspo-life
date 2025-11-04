@@ -687,6 +687,15 @@ app.get('/', async (c) => {
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1e40af">
     
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SEMHT0JH7F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SEMHT0JH7F');
+    </script>
+    
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -732,6 +741,16 @@ app.get('/admin', async (c) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理画面 - TOCHIGI SPORTS LIFE</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SEMHT0JH7F"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SEMHT0JH7F');
+    </script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
     <style>
