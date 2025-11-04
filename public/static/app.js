@@ -297,9 +297,9 @@ function renderStats(stats) {
           <!-- 選手数 -->
           <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:scale-105 transition">
             <div class="text-5xl font-bold text-purple-600 mb-2">${stats.players || 0}</div>
-            <div class="text-gray-600 font-semibold">登録選手</div>
+            <div class="text-gray-600 font-semibold">注目選手</div>
             <div class="text-xs text-gray-500 mt-2">
-              <i class="fas fa-users mr-1"></i>地元のヒーロー
+              <i class="fas fa-star mr-1"></i>地元のヒーロー
             </div>
           </div>
           
