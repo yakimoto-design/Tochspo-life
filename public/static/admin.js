@@ -17,13 +17,26 @@ const AdminState = {
 // Basic認証のヘッダーを設定
 function getAuthHeaders() {
   if (!AdminState.credentials) {
-    const username = prompt('管理者ユーザー名を入力してください:')
-    const password = prompt('パスワードを入力してください:')
-    AdminState.credentials = btoa(`${username}:${password}`)
+    renderLoginScreen()
+    throw new Error('Not authenticated')
   }
   
   return {
     'Authorization': `Basic ${AdminState.credentials}`
+  }
+}
+
+// ログアウト処理
+function handleLogout() {
+  if (confirm('ログアウトしますか？')) {
+    AdminState.credentials = null
+    AdminState.teams = []
+    AdminState.matches = []
+    AdminState.players = []
+    AdminState.venues = []
+    AdminState.guides = []
+    AdminState.localSpots = []
+    renderLoginScreen()
   }
 }
 
@@ -43,9 +56,14 @@ async function renderDashboard() {
               <i class="fas fa-cog mr-2"></i>
               TOCHIGI SPORTS LIFE 管理画面
             </h1>
-            <a href="/" class="text-blue-600 hover:text-blue-800">
-              <i class="fas fa-home mr-2"></i>サイトに戻る
-            </a>
+            <div class="flex items-center gap-4">
+              <button onclick="handleLogout()" class="text-red-600 hover:text-red-800 font-medium">
+                <i class="fas fa-sign-out-alt mr-2"></i>ログアウト
+              </button>
+              <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">
+                <i class="fas fa-home mr-2"></i>サイトに戻る
+              </a>
+            </div>
           </div>
         </div>
       </header>
@@ -1846,42 +1864,138 @@ function closeLocalSpotForm() {
 }
 
 // ==========================================
+// ログイン画面
+// ==========================================
+
+function renderLoginScreen() {
+  const app = document.getElementById('admin-app')
+  
+  app.innerHTML = `
+    <div class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center px-4">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+        <div class="text-center mb-8">
+          <i class="fas fa-lock text-6xl text-blue-600 mb-4"></i>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">管理画面ログイン</h1>
+          <p class="text-gray-600">TOCHIGI SPORTS LIFE</p>
+        </div>
+        
+        <form id="login-form" class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-user mr-2"></i>ユーザー名
+            </label>
+            <input 
+              type="text" 
+              id="username" 
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="admin"
+            >
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-key mr-2"></i>パスワード
+            </label>
+            <input 
+              type="password" 
+              id="password" 
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="••••••••"
+            >
+          </div>
+          
+          <div id="login-error" class="hidden">
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <i class="fas fa-exclamation-circle mr-2"></i>
+              <span id="login-error-message">ログインに失敗しました</span>
+            </div>
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+          >
+            <i class="fas fa-sign-in-alt mr-2"></i>
+            ログイン
+          </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+          <a href="/" class="text-blue-600 hover:text-blue-800 text-sm">
+            <i class="fas fa-arrow-left mr-2"></i>サイトに戻る
+          </a>
+        </div>
+      </div>
+    </div>
+  `
+  
+  // ログインフォームのイベントリスナー
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    
+    const username = document.getElementById('username').value
+    const password = document.getElementById('password').value
+    const errorDiv = document.getElementById('login-error')
+    const errorMessage = document.getElementById('login-error-message')
+    
+    // 認証情報を保存
+    AdminState.credentials = btoa(`${username}:${password}`)
+    
+    // ログインボタンを無効化してローディング表示
+    const submitButton = e.target.querySelector('button[type="submit"]')
+    submitButton.disabled = true
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>ログイン中...'
+    
+    try {
+      // 認証テスト（チーム一覧を取得してみる）
+      const [teamsRes, matchesRes, playersRes, guidesRes] = await Promise.all([
+        axios.get('/api/teams'),
+        axios.get('/api/matches'),
+        axios.get('/api/players'),
+        axios.get('/api/guides')
+      ])
+      
+      // データを保存
+      AdminState.teams = teamsRes.data
+      AdminState.matches = matchesRes.data
+      AdminState.players = playersRes.data
+      AdminState.guides = guidesRes.data
+      
+      // ダッシュボードを表示
+      renderDashboard()
+    } catch (error) {
+      console.error('ログインエラー:', error)
+      
+      // エラーメッセージを表示
+      errorDiv.classList.remove('hidden')
+      
+      if (error.response && error.response.status === 401) {
+        errorMessage.textContent = 'ユーザー名またはパスワードが正しくありません'
+      } else {
+        errorMessage.textContent = 'ログインに失敗しました。もう一度お試しください。'
+      }
+      
+      // 認証情報をクリア
+      AdminState.credentials = null
+      
+      // ボタンを元に戻す
+      submitButton.disabled = false
+      submitButton.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>ログイン'
+    }
+  })
+}
+
+// ==========================================
 // 初期化
 // ==========================================
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   console.log('TOCHIGI SPORTS LIFE 管理画面 - 起動')
   
-  try {
-    // データ取得
-    const [teamsRes, matchesRes, playersRes, guidesRes] = await Promise.all([
-      axios.get('/api/teams'),
-      axios.get('/api/matches'),
-      axios.get('/api/players'),
-      axios.get('/api/guides')
-    ])
-    
-    AdminState.teams = teamsRes.data
-    AdminState.matches = matchesRes.data
-    AdminState.players = playersRes.data
-    AdminState.guides = guidesRes.data
-    
-    renderDashboard()
-  } catch (error) {
-    console.error('データ取得エラー:', error)
-    document.getElementById('admin-app').innerHTML = `
-      <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md">
-          <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">エラー</h2>
-          <p class="text-gray-600 mb-4">データの読み込みに失敗しました。</p>
-          <button onclick="location.reload()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            再読み込み
-          </button>
-        </div>
-      </div>
-    `
-  }
+  // ログイン画面を表示
+  renderLoginScreen()
 })
 
 /**
