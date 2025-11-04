@@ -923,6 +923,9 @@ function closeMatchModal() {
 // ==========================================
 
 function showAddPlayerModal() {
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   const modalHTML = `
     <div id="player-modal" class="modal active">
       <div class="modal-content" style="max-width: 800px;">
@@ -1066,6 +1069,9 @@ function showAddPlayerModal() {
 async function showEditPlayerModal(id) {
   const player = AdminState.players.find(p => p.id === id)
   if (!player) return
+  
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   
   const modalHTML = `
     <div id="player-modal" class="modal active">
