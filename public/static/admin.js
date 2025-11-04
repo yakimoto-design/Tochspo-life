@@ -196,6 +196,9 @@ async function renderGuidesManager() {
 }
 
 function showAddGuideModal() {
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   const iconOptions = [
     { value: 'fa-basketball-ball', label: 'バスケットボール' },
     { value: 'fa-hockey-puck', label: 'ホッケー' },
@@ -311,6 +314,9 @@ function showAddGuideModal() {
 }
 
 async function showEditGuideModal(id) {
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   const guide = AdminState.guides.find(g => g.id === id)
   if (!guide) return
   
@@ -698,6 +704,9 @@ async function renderLocalSpotsManager() {
 // ==========================================
 
 function showAddMatchModal() {
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   const modalHTML = `
     <div id="match-modal" class="modal active">
       <div class="modal-content" style="max-width: 800px;">
@@ -791,6 +800,9 @@ function showAddMatchModal() {
 }
 
 async function showEditMatchModal(id) {
+  // ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   const match = AdminState.matches.find(m => m.id === id)
   if (!match) return
   
@@ -1019,6 +1031,9 @@ function showAddPlayerModal() {
   
   document.body.insertAdjacentHTML('beforeend', modalHTML)
   
+  // モーダルを表示後、ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  
   document.getElementById('player-form').addEventListener('submit', async (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
@@ -1158,6 +1173,9 @@ async function showEditPlayerModal(id) {
   `
   
   document.body.insertAdjacentHTML('beforeend', modalHTML)
+  
+  // モーダルを表示後、ページトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   
   document.getElementById('player-form').addEventListener('submit', async (e) => {
     e.preventDefault()
