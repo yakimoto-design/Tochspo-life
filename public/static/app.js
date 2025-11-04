@@ -405,7 +405,9 @@ function renderUpcomingMatches(matches) {
  * 注目選手セクションをレンダリング
  */
 function renderFeaturedPlayers(players) {
+  console.log('renderFeaturedPlayers called with:', players ? players.length : 0, 'players')
   if (!players || players.length === 0) {
+    console.warn('No featured players to display')
     return ''
   }
   

@@ -213,8 +213,8 @@ function showAddGuideModal() {
   ]
   
   const modalHTML = `
-    <div id="guide-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+    <div id="guide-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeGuideModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-plus-circle mr-2 text-orange-600"></i>新規記事追加
@@ -334,8 +334,8 @@ async function showEditGuideModal(id) {
   ]
   
   const modalHTML = `
-    <div id="guide-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+    <div id="guide-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeGuideModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-edit mr-2 text-blue-600"></i>記事編集
@@ -477,7 +477,12 @@ async function renderTeamsManager() {
       
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4">登録済みチーム一覧（${AdminState.teams.length}チーム）</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">登録済みチーム一覧（${AdminState.teams.length}チーム）</h2>
+            <button onclick="showAddTeamForm()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-plus mr-2"></i>チームを追加
+            </button>
+          </div>
           <div class="overflow-x-auto">
             <table class="min-w-full">
               <thead class="bg-gray-50">
@@ -486,6 +491,7 @@ async function renderTeamsManager() {
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">スポーツ</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">リーグ</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ホーム会場</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -495,6 +501,14 @@ async function renderTeamsManager() {
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${team.sport_type}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${team.league || '-'}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${team.venue_name || '-'}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button onclick="showEditTeamForm(${team.id})" class="text-blue-600 hover:text-blue-800 mr-3">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deleteTeam(${team.id}, '${team.name}')" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -670,7 +684,12 @@ async function renderLocalSpotsManager() {
       
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-4">登録済みスポット一覧（${AdminState.localSpots.length}件）</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">登録済みスポット一覧（${AdminState.localSpots.length}件）</h2>
+            <button onclick="showAddLocalSpotForm()" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">
+              <i class="fas fa-plus mr-2"></i>スポットを追加
+            </button>
+          </div>
           <div class="overflow-x-auto">
             <table class="min-w-full">
               <thead class="bg-gray-50">
@@ -679,6 +698,7 @@ async function renderLocalSpotsManager() {
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">カテゴリー</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">会場</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">徒歩</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -688,6 +708,14 @@ async function renderLocalSpotsManager() {
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${spot.category}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${spot.venue_name || '-'}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${spot.walking_time ? spot.walking_time + '分' : '-'}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button onclick="showEditLocalSpotForm(${spot.id})" class="text-blue-600 hover:text-blue-800 mr-3">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deleteLocalSpot(${spot.id}, '${spot.name}')" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -708,8 +736,8 @@ function showAddMatchModal() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
   
   const modalHTML = `
-    <div id="match-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+    <div id="match-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeMatchModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-plus-circle mr-2 text-green-600"></i>新規試合追加
@@ -811,8 +839,8 @@ async function showEditMatchModal(id) {
   const datetimeLocal = matchDate.toISOString().slice(0, 16)
   
   const modalHTML = `
-    <div id="match-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+    <div id="match-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeMatchModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-edit mr-2 text-blue-600"></i>試合編集
@@ -923,12 +951,20 @@ function closeMatchModal() {
 // ==========================================
 
 function showAddPlayerModal() {
-  // ページトップにスクロール
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  console.log('showAddPlayerModal called')
+  console.log('AdminState.teams:', AdminState.teams)
   
-  const modalHTML = `
-    <div id="player-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+  // モーダル表示前に必ずページトップにスクロール
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  window.scrollTo(0, 0)
+  
+  console.log('About to generate modal HTML template')
+  
+  try {
+    const modalHTML = `
+    <div id="player-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closePlayerModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-plus-circle mr-2 text-purple-600"></i>新規選手追加
@@ -985,10 +1021,11 @@ function showAddPlayerModal() {
             
             <div class="mb-4 md:col-span-2">
               <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-image mr-1"></i>写真URL
+                <i class="fas fa-image mr-1"></i>選手の写真
               </label>
-              <input type="url" name="photo_url" id="add_photo_url_input" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="https://example.com/photo.jpg" onchange="previewPlayerImage('add_photo_url_input', 'add_image_preview')">
-              <p class="text-xs text-gray-500 mt-1">画像のURL（https://）を入力してください。Unsplash、Imgur等の画像URLが使用できます。</p>
+              <input type="file" id="add_player_photo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <input type="hidden" name="photo_url" id="add_player_photo_url" value="">
+              <p class="text-xs text-gray-500 mt-1">画像をアップロードすると自動的にImgurにアップロードされます</p>
               <div id="add_image_preview" class="mt-3 hidden">
                 <p class="text-sm font-bold text-gray-700 mb-2">プレビュー:</p>
                 <img src="" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
@@ -1032,10 +1069,52 @@ function showAddPlayerModal() {
     </div>
   `
   
-  document.body.insertAdjacentHTML('beforeend', modalHTML)
+    console.log('Modal HTML generated, length:', modalHTML.length)
+    console.log('Inserting modal HTML for add player')
+    document.body.insertAdjacentHTML('beforeend', modalHTML)
+  } catch (error) {
+    console.error('Error generating or inserting modal:', error)
+    return
+  }
+  console.log('Modal inserted, checking if visible')
   
-  // モーダルを表示後、ページトップにスクロール
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  const modal = document.getElementById('player-modal')
+  console.log('Modal element:', modal)
+  console.log('Modal classes:', modal?.className)
+  
+  // 画像アップロードハンドラ
+  document.getElementById('add_player_photo').addEventListener('change', async function(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    const preview = document.getElementById('add_image_preview')
+    const img = preview.querySelector('img')
+    const hiddenInput = document.getElementById('add_player_photo_url')
+    
+    // プレビュー表示
+    const reader = new FileReader()
+    reader.onload = function(e) {
+      img.src = e.target.result
+      preview.classList.remove('hidden')
+    }
+    reader.readAsDataURL(file)
+    
+    // アップロード
+    try {
+      const loadingMsg = document.createElement('div')
+      loadingMsg.className = 'text-sm text-blue-600 mt-2'
+      loadingMsg.textContent = 'アップロード中...'
+      preview.appendChild(loadingMsg)
+      
+      const url = await uploadImage(file)
+      hiddenInput.value = url
+      img.src = url
+      loadingMsg.textContent = 'アップロード完了！'
+      setTimeout(() => loadingMsg.remove(), 2000)
+    } catch (error) {
+      alert('画像のアップロードに失敗しました: ' + error.message)
+    }
+  })
   
   document.getElementById('player-form').addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -1070,12 +1149,14 @@ async function showEditPlayerModal(id) {
   const player = AdminState.players.find(p => p.id === id)
   if (!player) return
   
-  // ページトップにスクロール
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  // モーダル表示前に必ずページトップにスクロール
+  document.documentElement.scrollTop = 0
+  document.body.scrollTop = 0
+  window.scrollTo(0, 0)
   
   const modalHTML = `
-    <div id="player-modal" class="modal active">
-      <div class="modal-content" style="max-width: 800px;">
+    <div id="player-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closePlayerModal()">
+      <div style="max-width: 800px; width: 100%; background: white; border-radius: 0.5rem; padding: 2rem; margin-top: 2rem;" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-edit mr-2 text-blue-600"></i>選手編集
@@ -1131,10 +1212,11 @@ async function showEditPlayerModal(id) {
             
             <div class="mb-4 md:col-span-2">
               <label class="block text-sm font-bold text-gray-700 mb-2">
-                <i class="fas fa-image mr-1"></i>写真URL
+                <i class="fas fa-image mr-1"></i>選手の写真
               </label>
-              <input type="url" name="photo_url" id="edit_photo_url_input" value="${player.photo_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="previewPlayerImage('edit_photo_url_input', 'edit_image_preview')">
-              <p class="text-xs text-gray-500 mt-1">画像のURL（https://）を入力してください。Unsplash、Imgur等の画像URLが使用できます。</p>
+              <input type="file" id="edit_player_photo" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="hidden" name="photo_url" id="edit_player_photo_url" value="${player.photo_url || ''}">
+              <p class="text-xs text-gray-500 mt-1">新しい画像をアップロードすると自動的にImgurにアップロードされます</p>
               <div id="edit_image_preview" class="mt-3 ${player.photo_url ? '' : 'hidden'}">
                 <p class="text-sm font-bold text-gray-700 mb-2">プレビュー:</p>
                 <img src="${player.photo_url || ''}" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
@@ -1180,8 +1262,39 @@ async function showEditPlayerModal(id) {
   
   document.body.insertAdjacentHTML('beforeend', modalHTML)
   
-  // モーダルを表示後、ページトップにスクロール
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  // 画像アップロードハンドラ（編集フォーム用）
+  document.getElementById('edit_player_photo').addEventListener('change', async function(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    
+    const preview = document.getElementById('edit_image_preview')
+    const img = preview.querySelector('img')
+    const hiddenInput = document.getElementById('edit_player_photo_url')
+    
+    // プレビュー表示
+    const reader = new FileReader()
+    reader.onload = function(e) {
+      img.src = e.target.result
+      preview.classList.remove('hidden')
+    }
+    reader.readAsDataURL(file)
+    
+    // アップロード
+    try {
+      const loadingMsg = document.createElement('div')
+      loadingMsg.className = 'text-sm text-blue-600 mt-2'
+      loadingMsg.textContent = 'アップロード中...'
+      preview.appendChild(loadingMsg)
+      
+      const url = await uploadImage(file)
+      hiddenInput.value = url
+      img.src = url
+      loadingMsg.textContent = 'アップロード完了！'
+      setTimeout(() => loadingMsg.remove(), 2000)
+    } catch (error) {
+      alert('画像のアップロードに失敗しました: ' + error.message)
+    }
+  })
   
   document.getElementById('player-form').addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -1230,6 +1343,505 @@ function closePlayerModal() {
   const modal = document.getElementById('player-modal')
   if (modal) {
     modal.remove()
+  }
+}
+
+// ==========================================
+// 画像アップロード関数
+// ==========================================
+
+async function uploadImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const base64 = e.target.result
+        const response = await axios.post('/api/admin/upload-image', 
+          { image: base64 },
+          { headers: getAuthHeaders() }
+        )
+        resolve(response.data.url)
+      } catch (error) {
+        reject(error)
+      }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+function createImageUploadField(fieldName, label, currentImageUrl = null) {
+  const previewId = `${fieldName}-preview`
+  const inputId = `${fieldName}-input`
+  const hiddenId = `${fieldName}-url`
+  
+  return `
+    <div class="mb-4">
+      <label class="block text-sm font-bold text-gray-700 mb-2">${label}</label>
+      <input type="file" id="${inputId}" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+      <input type="hidden" id="${hiddenId}" name="${fieldName}" value="${currentImageUrl || ''}">
+      <div id="${previewId}" class="mt-3 ${currentImageUrl ? '' : 'hidden'}">
+        <p class="text-sm font-bold text-gray-700 mb-2">プレビュー:</p>
+        <img src="${currentImageUrl || ''}" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-300 shadow-sm">
+      </div>
+      <p class="text-xs text-gray-500 mt-1">画像をアップロードすると自動的にImgurにアップロードされます</p>
+    </div>
+    <script>
+      document.getElementById('${inputId}').addEventListener('change', async function(e) {
+        const file = e.target.files[0]
+        if (!file) return
+        
+        const preview = document.getElementById('${previewId}')
+        const img = preview.querySelector('img')
+        const hiddenInput = document.getElementById('${hiddenId}')
+        
+        // プレビュー表示
+        const reader = new FileReader()
+        reader.onload = function(e) {
+          img.src = e.target.result
+          preview.classList.remove('hidden')
+        }
+        reader.readAsDataURL(file)
+        
+        // アップロード
+        try {
+          const loadingMsg = document.createElement('div')
+          loadingMsg.className = 'text-sm text-blue-600 mt-2'
+          loadingMsg.textContent = 'アップロード中...'
+          preview.appendChild(loadingMsg)
+          
+          const url = await uploadImage(file)
+          hiddenInput.value = url
+          img.src = url
+          loadingMsg.textContent = 'アップロード完了！'
+          setTimeout(() => loadingMsg.remove(), 2000)
+        } catch (error) {
+          alert('画像のアップロードに失敗しました: ' + error.message)
+        }
+      })
+    </script>
+  `
+}
+
+// ==========================================
+// チーム管理関数
+// ==========================================
+
+async function showAddTeamForm() {
+  const venuesRes = await axios.get('/api/venues')
+  AdminState.venues = venuesRes.data
+  
+  const formHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeTeamForm()">
+      <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 0.5rem; padding: 2rem;" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle mr-2 text-yellow-600"></i>新規チーム追加
+          </h2>
+          <button onclick="closeTeamForm()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="team-form">
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">チーム名 <span class="text-red-500">*</span></label>
+            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">スポーツ種目 <span class="text-red-500">*</span></label>
+            <input type="text" name="sport_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例: バスケットボール">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">リーグ</label>
+            <input type="text" name="league" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例: B.LEAGUE B1">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">ホーム会場</label>
+            <select name="home_venue_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              ${AdminState.venues.map(v => `<option value="${v.id}">${v.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">説明</label>
+            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">ウェブサイトURL</label>
+            <input type="url" name="website_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="https://example.com">
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeTeamForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg">
+              <i class="fas fa-save mr-2"></i>保存
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', formHTML)
+  
+  document.getElementById('team-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      name: formData.get('name'),
+      sport_type: formData.get('sport_type'),
+      league: formData.get('league') || null,
+      home_venue_id: formData.get('home_venue_id') ? parseInt(formData.get('home_venue_id')) : null,
+      description: formData.get('description') || null,
+      website_url: formData.get('website_url') || null,
+      logo_url: '/images/teams/default.png',
+      primary_color: '#000000',
+      secondary_color: '#FFFFFF'
+    }
+    
+    try {
+      await axios.post('/api/admin/teams', data, { headers: getAuthHeaders() })
+      closeTeamForm()
+      alert('チームを追加しました！')
+      renderTeamsManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function showEditTeamForm(id) {
+  const team = AdminState.teams.find(t => t.id === id)
+  if (!team) return
+  
+  const venuesRes = await axios.get('/api/venues')
+  AdminState.venues = venuesRes.data
+  
+  const formHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeTeamForm()">
+      <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 0.5rem; padding: 2rem;" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-edit mr-2 text-blue-600"></i>チーム編集
+          </h2>
+          <button onclick="closeTeamForm()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="team-form">
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">チーム名 <span class="text-red-500">*</span></label>
+            <input type="text" name="name" value="${team.name}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">スポーツ種目 <span class="text-red-500">*</span></label>
+            <input type="text" name="sport_type" value="${team.sport_type}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">リーグ</label>
+            <input type="text" name="league" value="${team.league || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">ホーム会場</label>
+            <select name="home_venue_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              ${AdminState.venues.map(v => `<option value="${v.id}" ${team.home_venue_id === v.id ? 'selected' : ''}>${v.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">説明</label>
+            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">${team.description || ''}</textarea>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">ウェブサイトURL</label>
+            <input type="url" name="website_url" value="${team.website_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeTeamForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+              <i class="fas fa-save mr-2"></i>更新
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', formHTML)
+  
+  document.getElementById('team-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      name: formData.get('name'),
+      sport_type: formData.get('sport_type'),
+      league: formData.get('league') || null,
+      home_venue_id: formData.get('home_venue_id') ? parseInt(formData.get('home_venue_id')) : null,
+      description: formData.get('description') || null,
+      website_url: formData.get('website_url') || null
+    }
+    
+    try {
+      await axios.put(`/api/admin/teams/${id}`, data, { headers: getAuthHeaders() })
+      closeTeamForm()
+      alert('チームを更新しました！')
+      renderTeamsManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function deleteTeam(id, name) {
+  if (!confirm(`チーム「${name}」を削除してもよろしいですか？`)) return
+  
+  try {
+    await axios.delete(`/api/admin/teams/${id}`, { headers: getAuthHeaders() })
+    alert('チームを削除しました')
+    renderTeamsManager()
+  } catch (error) {
+    alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+  }
+}
+
+function closeTeamForm() {
+  const form = document.querySelector('form#team-form')
+  if (form && form.parentElement && form.parentElement.parentElement) {
+    form.parentElement.parentElement.remove()
+  }
+}
+
+// ==========================================
+// 周辺スポット管理関数
+// ==========================================
+
+async function showAddLocalSpotForm() {
+  const venuesRes = await axios.get('/api/venues')
+  AdminState.venues = venuesRes.data
+  
+  const formHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeLocalSpotForm()">
+      <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 0.5rem; padding: 2rem;" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-plus-circle mr-2 text-pink-600"></i>新規スポット追加
+          </h2>
+          <button onclick="closeLocalSpotForm()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="localspot-form">
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">スポット名 <span class="text-red-500">*</span></label>
+            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">カテゴリー <span class="text-red-500">*</span></label>
+            <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              <option value="グルメ">グルメ</option>
+              <option value="観光">観光</option>
+              <option value="宿泊">宿泊</option>
+              <option value="ショッピング">ショッピング</option>
+              <option value="駐車場">駐車場</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">最寄りの会場</label>
+            <select name="venue_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              ${AdminState.venues.map(v => `<option value="${v.id}">${v.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">徒歩時間（分）</label>
+            <input type="number" name="walking_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例: 5">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">住所</label>
+            <input type="text" name="address" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">説明</label>
+            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeLocalSpotForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg">
+              <i class="fas fa-save mr-2"></i>保存
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', formHTML)
+  
+  document.getElementById('localspot-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      name: formData.get('name'),
+      category: formData.get('category'),
+      venue_id: formData.get('venue_id') ? parseInt(formData.get('venue_id')) : null,
+      walking_time: formData.get('walking_time') ? parseInt(formData.get('walking_time')) : null,
+      address: formData.get('address') || null,
+      description: formData.get('description') || null
+    }
+    
+    try {
+      await axios.post('/api/admin/local-spots', data, { headers: getAuthHeaders() })
+      closeLocalSpotForm()
+      alert('スポットを追加しました！')
+      renderLocalSpotsManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function showEditLocalSpotForm(id) {
+  const spot = AdminState.localSpots.find(s => s.id === id)
+  if (!spot) return
+  
+  const venuesRes = await axios.get('/api/venues')
+  AdminState.venues = venuesRes.data
+  
+  const formHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 2rem; overflow-y: auto;" onclick="if(event.target === this) closeLocalSpotForm()">
+      <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 0.5rem; padding: 2rem;" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-edit mr-2 text-blue-600"></i>スポット編集
+          </h2>
+          <button onclick="closeLocalSpotForm()" class="text-gray-600 hover:text-gray-800 text-2xl">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <form id="localspot-form">
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">スポット名 <span class="text-red-500">*</span></label>
+            <input type="text" name="name" value="${spot.name}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">カテゴリー <span class="text-red-500">*</span></label>
+            <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="グルメ" ${spot.category === 'グルメ' ? 'selected' : ''}>グルメ</option>
+              <option value="観光" ${spot.category === '観光' ? 'selected' : ''}>観光</option>
+              <option value="宿泊" ${spot.category === '宿泊' ? 'selected' : ''}>宿泊</option>
+              <option value="ショッピング" ${spot.category === 'ショッピング' ? 'selected' : ''}>ショッピング</option>
+              <option value="駐車場" ${spot.category === '駐車場' ? 'selected' : ''}>駐車場</option>
+              <option value="その他" ${spot.category === 'その他' ? 'selected' : ''}>その他</option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">最寄りの会場</label>
+            <select name="venue_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              ${AdminState.venues.map(v => `<option value="${v.id}" ${spot.venue_id === v.id ? 'selected' : ''}>${v.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">徒歩時間（分）</label>
+            <input type="number" name="walking_time" value="${spot.walking_time || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">住所</label>
+            <input type="text" name="address" value="${spot.address || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">説明</label>
+            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">${spot.description || ''}</textarea>
+          </div>
+          
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" onclick="closeLocalSpotForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
+              キャンセル
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+              <i class="fas fa-save mr-2"></i>更新
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+  
+  document.body.insertAdjacentHTML('beforeend', formHTML)
+  
+  document.getElementById('localspot-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = {
+      name: formData.get('name'),
+      category: formData.get('category'),
+      venue_id: formData.get('venue_id') ? parseInt(formData.get('venue_id')) : null,
+      walking_time: formData.get('walking_time') ? parseInt(formData.get('walking_time')) : null,
+      address: formData.get('address') || null,
+      description: formData.get('description') || null
+    }
+    
+    try {
+      await axios.put(`/api/admin/local-spots/${id}`, data, { headers: getAuthHeaders() })
+      closeLocalSpotForm()
+      alert('スポットを更新しました！')
+      renderLocalSpotsManager()
+    } catch (error) {
+      alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+    }
+  })
+}
+
+async function deleteLocalSpot(id, name) {
+  if (!confirm(`スポット「${name}」を削除してもよろしいですか？`)) return
+  
+  try {
+    await axios.delete(`/api/admin/local-spots/${id}`, { headers: getAuthHeaders() })
+    alert('スポットを削除しました')
+    renderLocalSpotsManager()
+  } catch (error) {
+    alert('エラーが発生しました: ' + (error.response?.data?.error || error.message))
+  }
+}
+
+function closeLocalSpotForm() {
+  const form = document.querySelector('form#localspot-form')
+  if (form && form.parentElement && form.parentElement.parentElement) {
+    form.parentElement.parentElement.remove()
   }
 }
 

@@ -235,6 +235,45 @@ app.use('/api/admin/*', async (c, next) => {
 })
 
 /**
+ * POST /api/admin/upload-image - 画像アップロード（Imgur API使用）
+ */
+app.post('/api/admin/upload-image', async (c) => {
+  try {
+    const { image } = await c.req.json()
+    
+    // Base64データからプレフィックスを削除
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
+    
+    // Imgur APIにアップロード
+    const response = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Client-ID 546c25a59c58ad7', // Imgur公開クライアントID
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        image: base64Data,
+        type: 'base64'
+      })
+    })
+    
+    const data = await response.json() as any
+    
+    if (!data.success) {
+      return c.json({ error: 'Upload failed' }, 500)
+    }
+    
+    return c.json({
+      success: true,
+      url: data.data.link
+    })
+  } catch (error) {
+    console.error('Image upload error:', error)
+    return c.json({ error: 'Upload failed' }, 500)
+  }
+})
+
+/**
  * POST /api/admin/teams - チーム追加
  */
 app.post('/api/admin/teams', async (c) => {
