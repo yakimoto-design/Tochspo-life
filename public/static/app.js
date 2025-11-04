@@ -13,6 +13,7 @@ const AppState = {
   teams: [],
   matches: [],
   players: [],
+  featuredPlayers: [],
   guides: [],
   venues: [],
   stats: {}
@@ -90,7 +91,7 @@ async function fetchUpcomingMatches() {
 async function fetchFeaturedPlayers() {
   try {
     const response = await axios.get('/api/players/featured')
-    AppState.players = response.data
+    AppState.featuredPlayers = response.data
   } catch (error) {
     console.error('選手情報の取得に失敗しました:', error)
   }
@@ -420,7 +421,7 @@ function renderFeaturedPlayers(players) {
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          ${players.slice(0, 8).map(player => `
+          ${players.map(player => `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
                 ${player.photo_url ? `
