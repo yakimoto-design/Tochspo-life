@@ -7,7 +7,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "tochspo-life-production",
+      "database_name": "tochispo-life-db",
       "database_id": "5bd7d9cb-bb81-45ee-a0c5-e3e1e8b4aaa5"
     }
   ]
