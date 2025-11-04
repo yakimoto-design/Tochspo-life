@@ -29,12 +29,27 @@ app.use('/static/*', serveStatic({ root: './public' }))
  * GET /api/teams - チーム一覧
  */
 app.get('/api/teams', async (c) => {
-  const teams = await c.env.DB.prepare(`
-    SELECT t.*, v.name as venue_name 
-    FROM teams t 
-    LEFT JOIN venues v ON t.home_venue_id = v.id
-  `).all()
-  return c.json(teams.results)
+  try {
+    // デバッグ: DB環境変数の確認
+    if (!c.env.DB) {
+      console.error('DB binding is not available')
+      return c.json({ error: 'Database not configured', details: 'DB binding is missing' }, 500)
+    }
+
+    const teams = await c.env.DB.prepare(`
+      SELECT t.*, v.name as venue_name 
+      FROM teams t 
+      LEFT JOIN venues v ON t.home_venue_id = v.id
+    `).all()
+    
+    return c.json(teams.results || [])
+  } catch (error) {
+    console.error('Error fetching teams:', error)
+    return c.json({ 
+      error: 'Failed to fetch teams', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
@@ -55,14 +70,27 @@ app.get('/api/teams/:id', async (c) => {
  * GET /api/matches - 試合一覧
  */
 app.get('/api/matches', async (c) => {
-  const matches = await c.env.DB.prepare(`
-    SELECT m.*, t.name as team_name, t.sport_type, v.name as venue_name
-    FROM matches m
-    LEFT JOIN teams t ON m.team_id = t.id
-    LEFT JOIN venues v ON m.venue_id = v.id
-    ORDER BY m.match_date DESC
-  `).all()
-  return c.json(matches.results)
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const matches = await c.env.DB.prepare(`
+      SELECT m.*, t.name as team_name, t.sport_type, v.name as venue_name
+      FROM matches m
+      LEFT JOIN teams t ON m.team_id = t.id
+      LEFT JOIN venues v ON m.venue_id = v.id
+      ORDER BY m.match_date DESC
+    `).all()
+    
+    return c.json(matches.results || [])
+  } catch (error) {
+    console.error('Error fetching matches:', error)
+    return c.json({ 
+      error: 'Failed to fetch matches', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
@@ -87,27 +115,39 @@ app.get('/api/matches/upcoming', async (c) => {
  * GET /api/players - 選手一覧
  */
 app.get('/api/players', async (c) => {
-  const teamId = c.req.query('team_id')
-  
-  let query = `
-    SELECT p.*, t.name as team_name, t.sport_type 
-    FROM players p
-    LEFT JOIN teams t ON p.team_id = t.id
-  `
-  
-  const params: any[] = []
-  
-  if (teamId) {
-    query += ' WHERE p.team_id = ?'
-    params.push(parseInt(teamId))
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const teamId = c.req.query('team_id')
+    
+    let query = `
+      SELECT p.*, t.name as team_name, t.sport_type 
+      FROM players p
+      LEFT JOIN teams t ON p.team_id = t.id
+    `
+    
+    const params: any[] = []
+    
+    if (teamId) {
+      query += ' WHERE p.team_id = ?'
+      params.push(parseInt(teamId))
+    }
+    
+    query += ' ORDER BY p.uniform_number ASC'
+    
+    const stmt = c.env.DB.prepare(query)
+    const players = params.length > 0 ? await stmt.bind(...params).all() : await stmt.all()
+    
+    return c.json(players.results || [])
+  } catch (error) {
+    console.error('Error fetching players:', error)
+    return c.json({ 
+      error: 'Failed to fetch players', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
   }
-  
-  query += ' ORDER BY p.uniform_number ASC'
-  
-  const stmt = c.env.DB.prepare(query)
-  const players = params.length > 0 ? await stmt.bind(...params).all() : await stmt.all()
-  
-  return c.json(players.results)
 })
 
 /**
@@ -137,12 +177,25 @@ app.get('/api/venues', async (c) => {
  * GET /api/guides - 観戦ガイド一覧
  */
 app.get('/api/guides', async (c) => {
-  const guides = await c.env.DB.prepare(`
-    SELECT * FROM guide_articles 
-    WHERE is_published = 1 
-    ORDER BY created_at DESC
-  `).all()
-  return c.json(guides.results)
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const guides = await c.env.DB.prepare(`
+      SELECT * FROM guide_articles 
+      WHERE is_published = 1 
+      ORDER BY created_at DESC
+    `).all()
+    
+    return c.json(guides.results || [])
+  } catch (error) {
+    console.error('Error fetching guides:', error)
+    return c.json({ 
+      error: 'Failed to fetch guides', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
