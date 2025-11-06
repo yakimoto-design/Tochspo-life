@@ -326,17 +326,25 @@ function renderStats(stats) {
 }
 
 /**
- * 今週末の試合セクションをレンダリング
+ * 直近の試合セクションをレンダリング（14日以内）
  */
 function renderUpcomingMatches(matches) {
-  if (matches.length === 0) {
+  // 14日以内の試合のみフィルタリング
+  const now = dayjs()
+  const twoWeeksLater = now.add(14, 'day')
+  const filteredMatches = matches.filter(match => {
+    const matchDate = dayjs(match.match_date)
+    return matchDate.isAfter(now) && matchDate.isBefore(twoWeeksLater)
+  })
+  
+  if (filteredMatches.length === 0) {
     return `
       <section id="schedule" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
           <div class="section-header">
             <h2 class="text-3xl font-bold text-gray-800">
               <i class="fas fa-calendar-alt mr-2"></i>
-              今週末のホームゲーム
+              直近のホームゲーム
             </h2>
             <p class="text-gray-600 mt-2">現在予定されている試合はありません</p>
           </div>
@@ -351,13 +359,13 @@ function renderUpcomingMatches(matches) {
         <div class="section-header">
           <h2 class="text-3xl font-bold text-gray-800">
             <i class="fas fa-calendar-alt mr-2"></i>
-            今週末のホームゲーム
+            直近のホームゲーム
           </h2>
-          <p class="text-gray-600 mt-2">栃木で開催される試合をチェック</p>
+          <p class="text-gray-600 mt-2">2週間以内に栃木で開催される試合</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          ${matches.slice(0, 6).map(match => `
+          ${filteredMatches.slice(0, 6).map(match => `
             <div class="match-card">
               <!-- 日付 -->
               <div class="text-center mb-2">
@@ -396,10 +404,14 @@ function renderUpcomingMatches(matches) {
               </div>
               
               ${match.ticket_url ? `
-                <a href="${match.ticket_url}" target="_blank" rel="noopener" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition text-center block">
+                <a href="${match.ticket_url}" target="_blank" rel="noopener" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 text-center block shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                   <i class="fas fa-ticket-alt mr-2"></i>チケット購入
                 </a>
-              ` : ''}
+              ` : `
+                <div class="w-full bg-gray-300 text-gray-500 font-bold py-3 px-6 rounded-lg text-center cursor-not-allowed">
+                  <i class="fas fa-ticket-alt mr-2"></i>チケット情報準備中
+                </div>
+              `}
             </div>
           `).join('')}
         </div>
