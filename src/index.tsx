@@ -75,15 +75,24 @@ app.get('/api/matches', async (c) => {
       return c.json({ error: 'Database not configured' }, 500)
     }
 
-    const matches = await c.env.DB.prepare(`
+    const teamId = c.req.query('team_id')
+    let query = `
       SELECT m.*, t.name as team_name, t.sport_type, v.name as venue_name
       FROM matches m
       LEFT JOIN teams t ON m.team_id = t.id
       LEFT JOIN venues v ON m.venue_id = v.id
-      ORDER BY m.match_date DESC
-    `).all()
+    `
     
-    return c.json(matches.results || [])
+    if (teamId) {
+      query += ` WHERE m.team_id = ?`
+      query += ` ORDER BY m.match_date DESC`
+      const matches = await c.env.DB.prepare(query).bind(parseInt(teamId)).all()
+      return c.json(matches.results || [])
+    } else {
+      query += ` ORDER BY m.match_date DESC`
+      const matches = await c.env.DB.prepare(query).all()
+      return c.json(matches.results || [])
+    }
   } catch (error) {
     console.error('Error fetching matches:', error)
     return c.json({ 
