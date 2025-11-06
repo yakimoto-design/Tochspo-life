@@ -330,40 +330,76 @@ app.post('/api/admin/upload-image', async (c) => {
  * POST /api/admin/teams - チーム追加
  */
 app.post('/api/admin/teams', async (c) => {
-  const { name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id } = await c.req.json()
-  
-  const result = await c.env.DB.prepare(`
-    INSERT INTO teams (name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id).run()
-  
-  return c.json({ success: true, id: result.meta.last_row_id })
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const { name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id } = await c.req.json()
+    
+    const result = await c.env.DB.prepare(`
+      INSERT INTO teams (name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id).run()
+    
+    return c.json({ success: true, id: result.meta.last_row_id })
+  } catch (error) {
+    console.error('Error creating team:', error)
+    return c.json({ 
+      error: 'Failed to create team', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
  * PUT /api/admin/teams/:id - チーム更新
  */
 app.put('/api/admin/teams/:id', async (c) => {
-  const id = parseInt(c.req.param('id'))
-  const { name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id } = await c.req.json()
-  
-  await c.env.DB.prepare(`
-    UPDATE teams 
-    SET name = ?, sport_type = ?, league = ?, logo_url = ?, primary_color = ?, secondary_color = ?, 
-        website_url = ?, description = ?, home_venue_id = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `).bind(name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id, id).run()
-  
-  return c.json({ success: true })
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const id = parseInt(c.req.param('id'))
+    const { name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id } = await c.req.json()
+    
+    await c.env.DB.prepare(`
+      UPDATE teams 
+      SET name = ?, sport_type = ?, league = ?, logo_url = ?, primary_color = ?, secondary_color = ?, 
+          website_url = ?, description = ?, home_venue_id = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(name, sport_type, league, logo_url, primary_color, secondary_color, website_url, description, home_venue_id, id).run()
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error updating team:', error)
+    return c.json({ 
+      error: 'Failed to update team', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
  * DELETE /api/admin/teams/:id - チーム削除
  */
 app.delete('/api/admin/teams/:id', async (c) => {
-  const id = parseInt(c.req.param('id'))
-  await c.env.DB.prepare('DELETE FROM teams WHERE id = ?').bind(id).run()
-  return c.json({ success: true })
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const id = parseInt(c.req.param('id'))
+    await c.env.DB.prepare('DELETE FROM teams WHERE id = ?').bind(id).run()
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting team:', error)
+    return c.json({ 
+      error: 'Failed to delete team', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
