@@ -182,6 +182,9 @@ function renderHeader() {
           <a href="#teams" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('teams'); toggleMobileMenu()">
             <i class="fas fa-users mr-2"></i>チーム
           </a>
+          <a href="#players" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('players'); toggleMobileMenu()">
+            <i class="fas fa-star mr-2"></i>注目選手
+          </a>
           <a href="#guides" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('guides'); toggleMobileMenu()">
             <i class="fas fa-book mr-2"></i>コラム
           </a>
@@ -412,7 +415,7 @@ function renderFeaturedPlayers(players) {
   }
   
   return `
-    <section class="py-16 bg-white">
+    <section id="players" class="py-16 bg-white">
       <div class="container mx-auto px-4">
         <div class="section-header">
           <h2 class="text-3xl font-bold text-gray-800">
