@@ -280,6 +280,14 @@ function showAddGuideModal() {
             </div>
             
             <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-image mr-1"></i>記事TOPの画像URL
+              </label>
+              <input type="url" name="image_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="https://example.com/article-top.jpg">
+              <p class="text-xs text-gray-500 mt-1">記事のメイン画像URLを入力してください</p>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
               <label class="block text-sm font-bold text-gray-700 mb-2">本文 <span class="text-red-500">*</span></label>
               <textarea name="content" rows="10" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
               <p class="text-xs text-gray-500 mt-1">
@@ -317,7 +325,7 @@ function showAddGuideModal() {
       sections: null,
       tips: null,
       recommended_items: null,
-      image_url: null
+      image_url: formData.get('image_url') || null
     }
     
     try {
@@ -401,6 +409,14 @@ async function showEditGuideModal(id) {
             </div>
             
             <div class="mb-4 md:col-span-2">
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-image mr-1"></i>記事TOPの画像URL
+              </label>
+              <input type="url" name="image_url" value="${guide.image_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/article-top.jpg">
+              <p class="text-xs text-gray-500 mt-1">記事のメイン画像URLを入力してください</p>
+            </div>
+            
+            <div class="mb-4 md:col-span-2">
               <label class="block text-sm font-bold text-gray-700 mb-2">本文 <span class="text-red-500">*</span></label>
               <textarea name="content" rows="10" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">${guide.content}</textarea>
               <p class="text-xs text-gray-500 mt-1">
@@ -434,7 +450,8 @@ async function showEditGuideModal(id) {
       icon: formData.get('icon'),
       description: formData.get('description'),
       content: formData.get('content'),
-      is_published: parseInt(formData.get('is_published'))
+      is_published: parseInt(formData.get('is_published')),
+      image_url: formData.get('image_url') || null
     }
     
     try {
@@ -1711,6 +1728,14 @@ async function showAddLocalSpotForm() {
             <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
           </div>
           
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-image mr-1"></i>画像URL
+            </label>
+            <input type="url" name="image_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="https://example.com/image.jpg">
+            <p class="text-xs text-gray-500 mt-1">スポットの画像URLを入力してください</p>
+          </div>
+          
           <div class="flex justify-end gap-2 mt-6">
             <button type="button" onclick="closeLocalSpotForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
               キャンセル
@@ -1735,7 +1760,8 @@ async function showAddLocalSpotForm() {
       venue_id: formData.get('venue_id') ? parseInt(formData.get('venue_id')) : null,
       walking_time: formData.get('walking_time') ? parseInt(formData.get('walking_time')) : null,
       address: formData.get('address') || null,
-      description: formData.get('description') || null
+      description: formData.get('description') || null,
+      image_url: formData.get('image_url') || null
     }
     
     try {
@@ -1809,6 +1835,14 @@ async function showEditLocalSpotForm(id) {
             <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg">${spot.description || ''}</textarea>
           </div>
           
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-image mr-1"></i>画像URL
+            </label>
+            <input type="url" name="image_url" value="${spot.image_url || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="https://example.com/image.jpg">
+            <p class="text-xs text-gray-500 mt-1">スポットの画像URLを入力してください</p>
+          </div>
+          
           <div class="flex justify-end gap-2 mt-6">
             <button type="button" onclick="closeLocalSpotForm()" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
               キャンセル
@@ -1833,7 +1867,8 @@ async function showEditLocalSpotForm(id) {
       venue_id: formData.get('venue_id') ? parseInt(formData.get('venue_id')) : null,
       walking_time: formData.get('walking_time') ? parseInt(formData.get('walking_time')) : null,
       address: formData.get('address') || null,
-      description: formData.get('description') || null
+      description: formData.get('description') || null,
+      image_url: formData.get('image_url') || null
     }
     
     try {
