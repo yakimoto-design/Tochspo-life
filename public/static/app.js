@@ -44,7 +44,11 @@ function navigateTo(page) {
   AppState.currentPage = page
   if (page === 'home') {
     renderMainPage()
+  } else if (page === 'players') {
+    renderPlayersPage()
   }
+  // ページ遷移時はトップにスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 /**
@@ -426,7 +430,7 @@ function renderFeaturedPlayers(players) {
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          ${players.map(player => `
+          ${players.slice(0, 12).map(player => `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
                 ${player.photo_url ? `
@@ -486,6 +490,15 @@ function renderFeaturedPlayers(players) {
             </div>
           `).join('')}
         </div>
+        
+        ${players.length > 12 ? `
+          <div class="text-center mt-8">
+            <button onclick="navigateTo('players')" class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <i class="fas fa-users mr-2"></i>すべての注目選手を見る
+              <span class="ml-2 bg-white bg-opacity-20 px-2 py-1 rounded text-sm">${players.length}名</span>
+            </button>
+          </div>
+        ` : ''}
       </div>
     </section>
   `
@@ -889,6 +902,167 @@ function showGuideDetail(slug) {
 function showAllGuides() {
   window.scrollTo(0, 0)
   renderGuidesList()
+}
+
+/**
+ * 注目選手一覧ページをレンダリング
+ */
+async function renderPlayersPage() {
+  const app = document.getElementById('app')
+  app.innerHTML = renderHeader() + `
+    <div class="bg-gray-50 min-h-screen">
+      <div class="container mx-auto px-4 py-8">
+        <button onclick="navigateTo('home')" class="mb-6 text-gray-600 hover:text-gray-800 transition">
+          <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+        </button>
+        
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-gray-800 mb-3">
+            <i class="fas fa-star text-yellow-500 mr-3"></i>注目選手一覧
+          </h1>
+          <p class="text-lg text-gray-600">栃木のトップアスリート全員をご紹介</p>
+        </div>
+        
+        <div id="players-list" class="flex justify-center items-center py-20">
+          <div class="loading"></div>
+        </div>
+      </div>
+    </div>
+  ` + renderFooter()
+  
+  // 注目選手データを取得
+  try {
+    const response = await axios.get('/api/players/featured')
+    const players = response.data
+    
+    if (!players || players.length === 0) {
+      document.getElementById('players-list').innerHTML = `
+        <div class="text-center py-12">
+          <i class="fas fa-user-slash text-6xl text-gray-300 mb-4"></i>
+          <p class="text-gray-600 text-lg">注目選手が登録されていません</p>
+        </div>
+      `
+      return
+    }
+    
+    // チームごとに選手を分類
+    const playersByTeam = {}
+    players.forEach(player => {
+      if (!playersByTeam[player.team_name]) {
+        playersByTeam[player.team_name] = {
+          sport_type: player.sport_type,
+          players: []
+        }
+      }
+      playersByTeam[player.team_name].players.push(player)
+    })
+    
+    // チームごとに選手を表示
+    const html = Object.keys(playersByTeam)
+      .sort()
+      .map(teamName => {
+        const teamData = playersByTeam[teamName]
+        const players = teamData.players.sort((a, b) => {
+          const numA = parseInt(a.uniform_number) || 999
+          const numB = parseInt(b.uniform_number) || 999
+          return numA - numB
+        })
+        
+        return `
+          <div class="mb-12">
+            <div class="flex items-center mb-6">
+              <i class="fas ${getSportIcon(teamData.sport_type)} text-3xl text-blue-600 mr-3"></i>
+              <h2 class="text-2xl font-bold text-gray-800">${teamName}</h2>
+              <span class="ml-3 bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+                ${players.length}名
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              ${players.map(player => `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
+                    ${player.photo_url ? `
+                      <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
+                    ` : `
+                      <div class="text-white text-6xl">
+                        <i class="fas fa-user-circle"></i>
+                      </div>
+                    `}
+                    <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                      <i class="fas fa-star mr-1"></i>注目
+                    </div>
+                  </div>
+                  
+                  <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                      <h3 class="text-lg font-bold text-gray-800">${player.name}</h3>
+                      ${player.uniform_number ? `
+                        <span class="text-2xl font-bold text-blue-600">#${player.uniform_number}</span>
+                      ` : ''}
+                    </div>
+                    
+                    ${player.position ? `
+                      <p class="text-sm text-gray-600 mb-2">
+                        <i class="fas fa-running mr-1"></i>
+                        ${player.position}
+                      </p>
+                    ` : ''}
+                    
+                    <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                      ${player.height ? `
+                        <span><i class="fas fa-arrows-alt-v mr-1"></i>${player.height}cm</span>
+                      ` : ''}
+                      ${player.weight ? `
+                        <span><i class="fas fa-weight mr-1"></i>${player.weight}kg</span>
+                      ` : ''}
+                    </div>
+                    
+                    ${player.birthdate ? `
+                      <p class="text-xs text-gray-500 mb-2">
+                        <i class="fas fa-birthday-cake mr-1"></i>
+                        ${dayjs(player.birthdate).format('YYYY年M月D日')}
+                      </p>
+                    ` : ''}
+                    
+                    ${player.hometown ? `
+                      <p class="text-xs text-gray-500 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        ${player.hometown}
+                      </p>
+                    ` : ''}
+                    
+                    ${player.bio ? `
+                      <p class="text-sm text-gray-600 line-clamp-2 mb-2">${player.bio}</p>
+                    ` : ''}
+                    
+                    ${player.episode ? `
+                      <div class="mt-2 pt-2 border-t border-gray-200">
+                        <p class="text-xs text-pink-600 font-bold mb-1">
+                          <i class="fas fa-heart mr-1"></i>エピソード
+                        </p>
+                        <p class="text-xs text-gray-600 line-clamp-3">${player.episode}</p>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `
+      }).join('')
+    
+    document.getElementById('players-list').innerHTML = html
+    
+  } catch (error) {
+    console.error('注目選手の取得に失敗しました:', error)
+    document.getElementById('players-list').innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-exclamation-circle text-6xl text-red-300 mb-4"></i>
+        <p class="text-gray-600 text-lg">データの取得に失敗しました</p>
+      </div>
+    `
+  }
 }
 
 /**
