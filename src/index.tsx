@@ -565,14 +565,14 @@ app.post('/api/admin/guides', async (c) => {
  */
 app.put('/api/admin/guides/:id', async (c) => {
   const id = parseInt(c.req.param('id'))
-  const { title, sport_type, slug, icon, description, content, is_published } = await c.req.json()
+  const { title, sport_type, slug, icon, description, content, image_url, is_published } = await c.req.json()
   
   await c.env.DB.prepare(`
     UPDATE guide_articles 
-    SET title = ?, sport_type = ?, slug = ?, icon = ?, description = ?, content = ?, is_published = ?,
+    SET title = ?, sport_type = ?, slug = ?, icon = ?, description = ?, content = ?, image_url = ?, is_published = ?,
         updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).bind(title, sport_type, slug, icon, description, content, is_published, id).run()
+  `).bind(title, sport_type, slug, icon, description, content, image_url, is_published, id).run()
   
   return c.json({ success: true })
 })
@@ -590,12 +590,12 @@ app.delete('/api/admin/guides/:id', async (c) => {
  * POST /api/admin/local-spots - 周辺スポット追加
  */
 app.post('/api/admin/local-spots', async (c) => {
-  const { venue_id, name, category, address, description, walking_time, website_url, phone, opening_hours } = await c.req.json()
+  const { venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours } = await c.req.json()
   
   const result = await c.env.DB.prepare(`
-    INSERT INTO local_spots (venue_id, name, category, address, description, walking_time, website_url, phone, opening_hours)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(venue_id, name, category, address, description, walking_time, website_url, phone, opening_hours).run()
+    INSERT INTO local_spots (venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours).run()
   
   return c.json({ success: true, id: result.meta.last_row_id })
 })
@@ -605,14 +605,14 @@ app.post('/api/admin/local-spots', async (c) => {
  */
 app.put('/api/admin/local-spots/:id', async (c) => {
   const id = parseInt(c.req.param('id'))
-  const { venue_id, name, category, address, description, walking_time, website_url, phone, opening_hours } = await c.req.json()
+  const { venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours } = await c.req.json()
   
   await c.env.DB.prepare(`
     UPDATE local_spots 
-    SET venue_id = ?, name = ?, category = ?, address = ?, description = ?, walking_time = ?, 
+    SET venue_id = ?, name = ?, category = ?, address = ?, description = ?, walking_time = ?, image_url = ?, 
         website_url = ?, phone = ?, opening_hours = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
-  `).bind(venue_id, name, category, address, description, walking_time, website_url, phone, opening_hours, id).run()
+  `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours, id).run()
   
   return c.json({ success: true })
 })
