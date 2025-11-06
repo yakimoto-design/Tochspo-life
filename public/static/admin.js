@@ -1611,6 +1611,9 @@ async function showEditTeamForm(id) {
       name: formData.get('name'),
       sport_type: formData.get('sport_type'),
       league: formData.get('league') || null,
+      logo_url: team.logo_url || '/images/teams/default.png',
+      primary_color: team.primary_color || '#000000',
+      secondary_color: team.secondary_color || '#FFFFFF',
       home_venue_id: formData.get('home_venue_id') ? parseInt(formData.get('home_venue_id')) : null,
       description: formData.get('description') || null,
       website_url: formData.get('website_url') || null
