@@ -16,6 +16,8 @@ const AppState = {
   featuredPlayers: [],
   guides: [],
   venues: [],
+  localSpots: [],
+  selectedVenue: null,
   stats: {}
 }
 
@@ -114,6 +116,32 @@ async function fetchGuides() {
 }
 
 /**
+ * 会場一覧を取得
+ */
+async function fetchVenues() {
+  try {
+    const response = await axios.get('/api/venues')
+    AppState.venues = response.data
+  } catch (error) {
+    console.error('会場情報の取得に失敗しました:', error)
+  }
+}
+
+/**
+ * 周辺スポットを取得
+ */
+async function fetchLocalSpots(venueId = null) {
+  try {
+    const url = venueId ? `/api/local-spots?venue_id=${venueId}` : '/api/local-spots'
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('周辺スポット情報の取得に失敗しました:', error)
+    return []
+  }
+}
+
+/**
  * サイト統計を取得
  */
 async function fetchStats() {
@@ -164,6 +192,9 @@ function renderHeader() {
             <a href="#teams" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('teams')">
               <i class="fas fa-users mr-1"></i>チーム
             </a>
+            <a href="#local-spots" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('local-spots')">
+              <i class="fas fa-map-marked-alt mr-1"></i>周辺情報
+            </a>
             <a href="#guides" class="hover:text-yellow-400 transition duration-200" onclick="scrollToSection('guides')">
               <i class="fas fa-book mr-1"></i>コラム
             </a>
@@ -188,6 +219,9 @@ function renderHeader() {
           </a>
           <a href="#players" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('players'); toggleMobileMenu()">
             <i class="fas fa-star mr-2"></i>注目選手
+          </a>
+          <a href="#local-spots" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('local-spots'); toggleMobileMenu()">
+            <i class="fas fa-map-marked-alt mr-2"></i>周辺情報
           </a>
           <a href="#guides" class="block py-2 px-4 hover:bg-gray-800 rounded transition" onclick="scrollToSection('guides'); toggleMobileMenu()">
             <i class="fas fa-book mr-2"></i>コラム
@@ -614,6 +648,164 @@ function renderGuides(guides) {
 }
 
 /**
+ * 周辺情報セクションをレンダリング
+ */
+function renderLocalSpots() {
+  return `
+    <section id="local-spots" class="py-16 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="section-header">
+          <h2 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-map-marked-alt mr-2"></i>
+            会場周辺情報
+          </h2>
+          <p class="text-gray-600 mt-2">試合会場周辺のグルメ・観光スポット</p>
+        </div>
+        
+        <!-- 会場選択ドロップダウン -->
+        <div class="mb-8 text-center">
+          <div class="inline-block">
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+              <i class="fas fa-map-marker-alt mr-1"></i>会場を選択
+            </label>
+            <select id="venue-selector" onchange="loadLocalSpots(this.value)" class="px-6 py-3 border-2 border-gray-300 rounded-lg text-lg font-semibold focus:outline-none focus:border-blue-500 transition">
+              <option value="">すべての会場</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- 周辺スポット表示エリア -->
+        <div id="local-spots-container" class="flex justify-center items-center py-20">
+          <div class="loading"></div>
+        </div>
+      </div>
+    </section>
+  `
+}
+
+/**
+ * 周辺スポットを読み込んで表示
+ */
+async function loadLocalSpots(venueId) {
+  const container = document.getElementById('local-spots-container')
+  if (!container) return
+  
+  container.innerHTML = '<div class="flex justify-center items-center py-20"><div class="loading"></div></div>'
+  
+  try {
+    const spots = await fetchLocalSpots(venueId || null)
+    
+    if (!spots || spots.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <i class="fas fa-map-marked-alt text-6xl text-gray-300 mb-4"></i>
+          <p class="text-gray-600 text-lg">周辺スポット情報がまだ登録されていません</p>
+        </div>
+      `
+      return
+    }
+    
+    // カテゴリごとに分類
+    const categories = {
+      'グルメ': [],
+      '観光': [],
+      'ショッピング': [],
+      '宿泊': [],
+      'その他': []
+    }
+    
+    spots.forEach(spot => {
+      const category = spot.category || 'その他'
+      if (!categories[category]) {
+        categories[category] = []
+      }
+      categories[category].push(spot)
+    })
+    
+    // カテゴリごとに表示
+    const html = Object.keys(categories)
+      .filter(cat => categories[cat].length > 0)
+      .map(category => {
+        const categoryIcons = {
+          'グルメ': 'fa-utensils',
+          '観光': 'fa-camera',
+          'ショッピング': 'fa-shopping-bag',
+          '宿泊': 'fa-hotel',
+          'その他': 'fa-star'
+        }
+        
+        return `
+          <div class="mb-10">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <i class="fas ${categoryIcons[category] || 'fa-star'} text-blue-600 mr-3"></i>
+              ${category}
+              <span class="ml-3 bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+                ${categories[category].length}件
+              </span>
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              ${categories[category].map(spot => `
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+                  ${spot.image_url ? `
+                    <div class="h-48 overflow-hidden">
+                      <img src="${spot.image_url}" alt="${spot.name}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
+                    </div>
+                  ` : `
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                      <i class="fas ${categoryIcons[category] || 'fa-star'} text-6xl text-white opacity-50"></i>
+                    </div>
+                  `}
+                  
+                  <div class="p-6">
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">${spot.name}</h4>
+                    
+                    ${spot.venue_name ? `
+                      <p class="text-sm text-gray-500 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        ${spot.venue_name}から
+                        ${spot.walking_time ? `徒歩${spot.walking_time}分` : ''}
+                      </p>
+                    ` : ''}
+                    
+                    ${spot.address ? `
+                      <p class="text-sm text-gray-600 mb-3">
+                        <i class="fas fa-location-dot mr-1"></i>
+                        ${spot.address}
+                      </p>
+                    ` : ''}
+                    
+                    ${spot.description ? `
+                      <p class="text-sm text-gray-700 mb-4 line-clamp-3">${spot.description}</p>
+                    ` : ''}
+                    
+                    ${spot.website_url ? `
+                      <a href="${spot.website_url}" target="_blank" rel="noopener" class="inline-block text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                        <i class="fas fa-external-link-alt mr-1"></i>詳しく見る
+                      </a>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `
+      }).join('')
+    
+    container.innerHTML = html
+    
+  } catch (error) {
+    console.error('周辺スポットの表示に失敗しました:', error)
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-exclamation-circle text-6xl text-red-300 mb-4"></i>
+        <p class="text-gray-600 text-lg">データの取得に失敗しました</p>
+      </div>
+    `
+  }
+}
+
+/**
  * フッターをレンダリング
  */
 function renderFooter() {
@@ -673,6 +865,7 @@ async function renderMainPage() {
     fetchUpcomingMatches(),
     fetchFeaturedPlayers(),
     fetchGuides(),
+    fetchVenues(),
     fetchStats()
   ])
   
@@ -685,10 +878,38 @@ async function renderMainPage() {
     renderFeaturedPlayers(AppState.featuredPlayers) +
     renderTeams(AppState.teams) +
     renderGuides(AppState.guides) +
+    renderLocalSpots() +
     renderFooter()
   
   // ヒーロースライダー初期化
   initHeroSlider()
+  
+  // 会場セレクターの初期化
+  initVenueSelector()
+  
+  // 周辺スポットの初期読み込み
+  loadLocalSpots()
+}
+
+/**
+ * 会場セレクターを初期化
+ */
+function initVenueSelector() {
+  const selector = document.getElementById('venue-selector')
+  if (!selector || !AppState.venues) return
+  
+  // 既存のオプションをクリア（「すべての会場」以外）
+  while (selector.options.length > 1) {
+    selector.remove(1)
+  }
+  
+  // 会場オプションを追加
+  AppState.venues.forEach(venue => {
+    const option = document.createElement('option')
+    option.value = venue.id
+    option.textContent = venue.name
+    selector.appendChild(option)
+  })
 }
 
 /**
