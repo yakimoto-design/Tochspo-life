@@ -700,27 +700,27 @@ app.get('/', async (c) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
     <!-- Primary Meta Tags -->
-    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | TOCHIGI SPORTS LIFE</title>
+    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE</title>
     <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
     <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
     <meta name="keywords" content="栃木,スポーツ,プロスポーツ,宇都宮ブレックス,栃木SC,アイスバックス,ブリッツェン,ゴールデンブレーブス,栃木シティFC,バスケットボール,サッカー,アイスホッケー,野球,サイクルロードレース">
-    <meta name="author" content="とちスポLIFE">
+    <meta name="author" content="Tochispo LIFE">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="${siteUrl}/">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="${siteUrl}/">
-    <meta property="og:title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta property="og:title" content="Tochispo LIFE - 栃木のプロスポーツをもっと身近に">
     <meta property="og:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。宇都宮ブレックス、栃木SC、アイスバックスなど栃木のスポーツを応援しよう！">
     <meta property="og:image" content="${siteUrl}/static/og-image.png">
-    <meta property="og:site_name" content="とちスポLIFE">
+    <meta property="og:site_name" content="Tochispo LIFE">
     <meta property="og:locale" content="ja_JP">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="${siteUrl}/">
-    <meta name="twitter:title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta name="twitter:title" content="Tochispo LIFE - 栃木のプロスポーツをもっと身近に">
     <meta name="twitter:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。">
     <meta name="twitter:image" content="${siteUrl}/static/og-image.png">
     
@@ -746,7 +746,7 @@ app.get('/', async (c) => {
     {
       "@context": "https://schema.org",
       "@type": "SportsOrganization",
-      "name": "とちスポLIFE - TOCHIGI SPORTS LIFE",
+      "name": "Tochispo LIFE",
       "description": "栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト",
       "url": "${siteUrl}",
       "logo": "${siteUrl}/static/logo.png",
@@ -785,7 +785,7 @@ app.get('/admin', async (c) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理画面 - TOCHIGI SPORTS LIFE</title>
+    <title>管理画面 - Tochispo LIFE</title>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SEMHT0JH7F"></script>

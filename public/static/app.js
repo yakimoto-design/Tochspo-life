@@ -1332,7 +1332,7 @@ function showOperatorInfo() {
                 <i class="fas fa-heart text-red-500 mr-2"></i>サイトについて
               </h2>
               <p class="text-gray-700 leading-relaxed mb-4">
-                「TOCHIGI SPORTS LIFE（とちスポLIFE）」は、栃木県のプロスポーツを応援する情報サイトです。
+                「Tochispo LIFE（とちスポLIFE）」は、栃木県のプロスポーツを応援する情報サイトです。
               </p>
               <p class="text-gray-700 leading-relaxed mb-4">
                 宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティフットボールクラブの6チームの試合情報、選手紹介、観戦ガイドなどを掲載しています。
