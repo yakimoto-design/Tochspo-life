@@ -254,7 +254,7 @@ app.get('/api/local-spots', async (c) => {
 app.get('/api/stats', async (c) => {
   const teams = await c.env.DB.prepare('SELECT COUNT(*) as count FROM teams').first()
   const matches = await c.env.DB.prepare('SELECT COUNT(*) as count FROM matches WHERE match_date >= datetime("now")').first()
-  const players = await c.env.DB.prepare('SELECT COUNT(*) as count FROM players').first()
+  const players = await c.env.DB.prepare('SELECT COUNT(*) as count FROM players WHERE is_featured = 1').first()
   const guides = await c.env.DB.prepare('SELECT COUNT(*) as count FROM guide_articles WHERE is_published = 1').first()
   
   return c.json({
