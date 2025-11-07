@@ -54,12 +54,20 @@ function navigateTo(page) {
 }
 
 /**
- * セクションへスクロール
+ * セクションへスクロール（ヘッダー分のオフセットを考慮）
  */
 function scrollToSection(sectionId) {
   const element = document.getElementById(sectionId)
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // ヘッダーの高さ分のオフセット（約80px）を引く
+    const headerOffset = 100
+    const elementPosition = element.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
   }
 }
 
