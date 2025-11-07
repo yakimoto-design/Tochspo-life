@@ -1,5 +1,5 @@
 // ==========================================
-// TOCHIGI SPORTS LIFE - Frontend Application
+// Tochispo LIFE - Frontend Application
 // ==========================================
 
 // dayjs日本語ロケール設定
@@ -179,7 +179,7 @@ function renderHeader() {
                 <i class="fas fa-fire mr-3 text-3xl text-yellow-500"></i>
                 <div>
                   <div class="text-3xl font-black tracking-wider" style="letter-spacing: 2px;">
-                    TOCHIGI SPORTS LIFE
+                    TOCHISPO LIFE
                   </div>
                   <div class="text-xs text-yellow-400 mt-1 font-semibold tracking-wide" style="letter-spacing: 1px;">
                     栃木のプロスポーツをもっと身近に
@@ -822,7 +822,7 @@ function renderFooter() {
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 class="text-white font-bold mb-4">TOCHIGI SPORTS LIFE</h3>
+            <h3 class="text-white font-bold mb-4">Tochispo LIFE</h3>
             <p class="text-sm">
               栃木のプロスポーツをもっと身近に。<br>
               栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト。
@@ -851,7 +851,7 @@ function renderFooter() {
           </div>
         </div>
         <div class="border-t border-gray-700 pt-6 text-center text-sm">
-          <p>&copy; 2025 TOCHIGI SPORTS LIFE. All rights reserved.</p>
+          <p>&copy; 2025 Tochispo LIFE. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -1323,7 +1323,7 @@ function showOperatorInfo() {
             <h1 class="text-4xl font-bold mb-2">
               <i class="fas fa-info-circle mr-3"></i>運営事務局
             </h1>
-            <p class="text-xl opacity-90">TOCHIGI SPORTS LIFE運営事務局</p>
+            <p class="text-xl opacity-90">Tochispo LIFE運営事務局</p>
           </div>
           
           <div class="p-8">
@@ -1347,7 +1347,7 @@ function showOperatorInfo() {
               <div class="space-y-3">
                 <div>
                   <p class="text-sm text-gray-600 mb-1">事務局名</p>
-                  <p class="text-gray-800 font-semibold">TOCHIGI SPORTS LIFE運営事務局</p>
+                  <p class="text-gray-800 font-semibold">Tochispo LIFE運営事務局</p>
                 </div>
                 <div>
                   <p class="text-sm text-gray-600 mb-1">運営</p>
@@ -1387,6 +1387,6 @@ function showOperatorInfo() {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('TOCHIGI SPORTS LIFE - アプリケーション起動')
+  console.log('Tochispo LIFE - アプリケーション起動')
   renderMainPage()
 })
