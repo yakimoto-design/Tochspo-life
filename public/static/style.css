@@ -173,3 +173,53 @@ body {
     font-size: 1.5rem;
   }
 }
+
+/* 選手カード用の追加スタイル */
+#players .grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+}
+
+.player-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  min-width: 250px;
+  max-width: 100%;
+}
+
+.player-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  #players .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  #players .grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  #players .grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (min-width: 1281px) {
+  #players .grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
