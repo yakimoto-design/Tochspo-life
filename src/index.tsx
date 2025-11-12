@@ -690,6 +690,9 @@ app.get('/sitemap.xml', async (c) => {
   // ガイド記事一覧を取得
   const guides = await c.env.DB.prepare('SELECT slug FROM guide_articles WHERE is_published = 1').all()
   
+  // 選手一覧を取得
+  const players = await c.env.DB.prepare('SELECT id FROM players').all()
+  
   const teamUrls = teams.results.map((team: any) => `
   <url>
     <loc>${siteUrl}/team/${team.id}</loc>
@@ -706,6 +709,14 @@ app.get('/sitemap.xml', async (c) => {
     <priority>0.7</priority>
   </url>`).join('')
   
+  const playerUrls = players.results.map((player: any) => `
+  <url>
+    <loc>${siteUrl}/players/${player.id}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('')
+  
   return c.text(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -713,7 +724,13 @@ app.get('/sitemap.xml', async (c) => {
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>${teamUrls}${guideUrls}
+  </url>
+  <url>
+    <loc>${siteUrl}/players</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>${teamUrls}${guideUrls}${playerUrls}
 </urlset>`, 200, { 'Content-Type': 'application/xml' })
 })
 
