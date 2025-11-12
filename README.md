@@ -179,8 +179,9 @@ npm run db:migrate:prod
   - パスワード: `tochigi2025`
 
 ### 本番環境
-- **公開サイト**: https://webapp.pages.dev
-- **管理画面**: https://webapp.pages.dev/admin
+- **公開サイト**: https://2d4f3e97.tochspo-life.pages.dev
+- **管理画面**: https://2d4f3e97.tochspo-life.pages.dev/admin
+- **選手詳細ページ**: https://2d4f3e97.tochspo-life.pages.dev/players/{id}
 
 ## プロジェクト構成
 
@@ -217,6 +218,7 @@ webapp/
 - `GET /api/teams/:id` - チーム詳細
 - `GET /api/matches` - 試合一覧
 - `GET /api/players` - 選手一覧
+- `GET /api/players/:id` - 選手詳細（個別）
 - `GET /api/venues` - 会場一覧
 - `GET /api/guides` - 観戦ガイド記事一覧
 - `GET /api/guides/:slug` - 記事詳細
@@ -261,8 +263,58 @@ npm run db:reset
 
 このプロジェクトは私的利用を目的としています。
 
+## 完了している機能
+
+### フロントエンド
+- ✅ レスポンシブデザイン（モバイル・タブレット・デスクトップ対応）
+- ✅ ヒーロースライダー（3スライド・自動ローテーション）
+- ✅ チーム一覧カード表示
+- ✅ 試合スケジュール（17試合）
+- ✅ 注目選手セクション（12名表示）
+- ✅ 選手カードクリックで詳細ページへ遷移（NEW）
+- ✅ 選手詳細ページ（全プロフィール・エピソード表示）（NEW）
+- ✅ 観戦ガイド記事一覧・詳細表示
+- ✅ SEO最適化（メタタグ、OGP、JSON-LD、robots.txt、sitemap.xml）
+- ✅ History API実装（URL変更・ブラウザ戻る/進む対応）（NEW）
+
+### バックエンド＆CMS
+- ✅ Cloudflare D1データベース設定
+- ✅ チーム管理（表示のみ）
+- ✅ 試合管理（CRUD完備）
+- ✅ 選手管理（CRUD完備、画像プレビュー・エピソード入力）
+- ✅ 記事管理（CRUD完備）
+- ✅ Basic認証（admin/tochigi2025）
+
+### API
+- ✅ `GET /api/teams` - チーム一覧
+- ✅ `GET /api/teams/:id` - チーム詳細
+- ✅ `GET /api/matches` - 試合一覧
+- ✅ `GET /api/players` - 選手一覧
+- ✅ `GET /api/players/:id` - 選手詳細（NEW）
+- ✅ `GET /api/guides` - 記事一覧
+- ✅ `GET /api/guides/:slug` - 記事詳細
+- ✅ 管理API（POST/PUT/DELETE）
+
+## 今後の機能開発案
+
+### 優先度: 高
+- ⭐ 観戦ガイド記事の詳細ページデザイン改善
+- ⭐ 会場情報ページの実装
+- ⭐ 周辺スポット情報の表示
+
+### 優先度: 中
+- 🔹 試合結果の表示機能
+- 🔹 選手フィルタリング機能（チーム別・スポーツ別）
+- 🔹 検索機能（選手名・チーム名）
+
+### 優先度: 低
+- 🔸 お気に入り機能（ローカルストレージ）
+- 🔸 ダークモード対応
+- 🔸 多言語対応（英語）
+
 ## 更新履歴
 
+- **2025-11-12**: 選手詳細ページ実装完了（クリックイベント・URLルーティング・History API）
 - **2025-11-01**: プロジェクト再構築完了
 - **2025-11-01**: 試合・選手管理のCRUD機能追加
 - **2025-11-01**: 試合データ（17件）と選手データ（24名）のシード投入完了
