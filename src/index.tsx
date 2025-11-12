@@ -682,16 +682,21 @@ Sitemap: ${siteUrl}/sitemap.xml`)
  * GET /sitemap.xml - サイトマップ
  */
 app.get('/sitemap.xml', async (c) => {
-  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
-  
-  // チーム一覧を取得
-  const teams = await c.env.DB.prepare('SELECT id FROM teams').all()
-  
-  // ガイド記事一覧を取得
-  const guides = await c.env.DB.prepare('SELECT slug FROM guide_articles WHERE is_published = 1').all()
-  
-  // 選手一覧を取得
-  const players = await c.env.DB.prepare('SELECT id FROM players').all()
+  try {
+    if (!c.env.DB) {
+      return c.text('Database not configured', 500)
+    }
+    
+    const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
+    
+    // チーム一覧を取得
+    const teams = await c.env.DB.prepare('SELECT id FROM teams').all()
+    
+    // ガイド記事一覧を取得
+    const guides = await c.env.DB.prepare('SELECT slug FROM guide_articles WHERE is_published = 1').all()
+    
+    // 選手一覧を取得
+    const players = await c.env.DB.prepare('SELECT id FROM players').all()
   
   const teamUrls = teams.results.map((team: any) => `
   <url>
@@ -732,6 +737,10 @@ app.get('/sitemap.xml', async (c) => {
     <priority>0.9</priority>
   </url>${teamUrls}${guideUrls}${playerUrls}
 </urlset>`, 200, { 'Content-Type': 'application/xml' })
+  } catch (error) {
+    console.error('Error generating sitemap:', error)
+    return c.text('Error generating sitemap', 500)
+  }
 })
 
 // ==========================================
