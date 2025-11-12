@@ -175,6 +175,40 @@ app.get('/api/players/featured', async (c) => {
 })
 
 /**
+ * GET /api/players/:id - 選手詳細
+ */
+app.get('/api/players/:id', async (c) => {
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const id = c.req.param('id')
+    
+    const stmt = c.env.DB.prepare(`
+      SELECT p.*, t.name as team_name, t.sport_type, t.primary_color
+      FROM players p
+      LEFT JOIN teams t ON p.team_id = t.id
+      WHERE p.id = ?
+    `)
+    
+    const result = await stmt.bind(parseInt(id)).first()
+    
+    if (!result) {
+      return c.json({ error: 'Player not found' }, 404)
+    }
+    
+    return c.json(result)
+  } catch (error) {
+    console.error('Error fetching player:', error)
+    return c.json({ 
+      error: 'Failed to fetch player', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
+})
+
+/**
  * GET /api/venues - 会場一覧
  */
 app.get('/api/venues', async (c) => {
