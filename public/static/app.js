@@ -496,7 +496,7 @@ function renderFeaturedPlayers(players) {
           <p class="text-gray-600 mt-2">栃木のトップアスリートたち</p>
         </div>
         
-       <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-w-[250px]" style="display: flex; flex-direction: column;">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           ${players.slice(0, 12).map(player => `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
               <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
