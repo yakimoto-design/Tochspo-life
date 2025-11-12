@@ -42,12 +42,25 @@ function getSportIcon(sportType) {
 /**
  * ページ遷移
  */
-function navigateTo(page) {
+function navigateTo(page, pushState = true) {
   AppState.currentPage = page
+  
+  // Update browser URL
+  if (pushState) {
+    const url = page === 'home' ? '/' : `/${page}`
+    window.history.pushState({ page }, '', url)
+  }
+  
   if (page === 'home') {
     renderMainPage()
   } else if (page === 'players') {
     renderPlayersPage()
+  } else if (page.startsWith('players/')) {
+    const playerId = page.replace('players/', '')
+    renderPlayerDetailPage(playerId)
+  } else if (page.startsWith('guides/')) {
+    const slug = page.replace('guides/', '')
+    renderGuideDetailPage(slug)
   }
   // ページ遷移時はトップにスクロール
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -485,7 +498,7 @@ function renderFeaturedPlayers(players) {
         
        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-w-[250px]" style="display: flex; flex-direction: column;">
           ${players.slice(0, 12).map(player => `
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
               <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
                 ${player.photo_url ? `
                   <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
@@ -1146,6 +1159,14 @@ function showAllGuides() {
 }
 
 /**
+ * 選手詳細ページへ遷移
+ */
+function showPlayerDetail(playerId) {
+  window.scrollTo(0, 0)
+  navigateTo(`players/${playerId}`)
+}
+
+/**
  * 注目選手一覧ページをレンダリング
  */
 async function renderPlayersPage() {
@@ -1221,7 +1242,7 @@ async function renderPlayersPage() {
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               ${players.map(player => `
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
                   <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
                     ${player.photo_url ? `
                       <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
@@ -1307,6 +1328,183 @@ async function renderPlayersPage() {
 }
 
 /**
+ * 選手詳細ページをレンダリング
+ */
+async function renderPlayerDetailPage(playerId) {
+  const app = document.getElementById('app')
+  app.innerHTML = renderHeader() + `
+    <div class="container mx-auto px-4 py-12">
+      <div class="text-center">
+        <div class="loading mx-auto"></div>
+        <p class="mt-4 text-gray-600">読み込み中...</p>
+      </div>
+    </div>
+  `
+  
+  try {
+    const response = await axios.get(`/api/players/${playerId}`)
+    const player = response.data
+    
+    app.innerHTML = renderHeader() + `
+      <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8 max-w-4xl">
+          <button onclick="navigateTo('home')" class="mb-6 text-gray-600 hover:text-gray-800 transition">
+            <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+          </button>
+          
+          <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <!-- プロフィール写真エリア -->
+            <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-96 flex items-center justify-center">
+              ${player.photo_url ? `
+                <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
+              ` : `
+                <div class="text-white text-9xl">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+              `}
+              <div class="absolute top-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-full font-bold">
+                <i class="fas fa-star mr-2"></i>注目選手
+              </div>
+            </div>
+            
+            <!-- 基本情報 -->
+            <div class="p-8">
+              <div class="flex items-center justify-between mb-6">
+                <h1 class="text-4xl font-bold text-gray-800">${player.name}</h1>
+                ${player.uniform_number ? `
+                  <span class="text-5xl font-bold text-blue-600">#${player.uniform_number}</span>
+                ` : ''}
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <p class="text-sm text-gray-600 mb-1">
+                    <i class="fas ${getSportIcon(player.sport_type)} mr-2"></i>所属チーム
+                  </p>
+                  <p class="text-lg font-semibold text-gray-800">${player.team_name}</p>
+                </div>
+                
+                ${player.position ? `
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">
+                      <i class="fas fa-running mr-2"></i>ポジション
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800">${player.position}</p>
+                  </div>
+                ` : ''}
+                
+                ${player.height ? `
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">
+                      <i class="fas fa-arrows-alt-v mr-2"></i>身長
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800">${player.height} cm</p>
+                  </div>
+                ` : ''}
+                
+                ${player.weight ? `
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">
+                      <i class="fas fa-weight mr-2"></i>体重
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800">${player.weight} kg</p>
+                  </div>
+                ` : ''}
+                
+                ${player.birthdate ? `
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">
+                      <i class="fas fa-birthday-cake mr-2"></i>生年月日
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800">${player.birthdate}</p>
+                  </div>
+                ` : ''}
+                
+                ${player.hometown ? `
+                  <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">
+                      <i class="fas fa-map-marker-alt mr-2"></i>出身地
+                    </p>
+                    <p class="text-lg font-semibold text-gray-800">${player.hometown}</p>
+                  </div>
+                ` : ''}
+              </div>
+              
+              <!-- プロフィール -->
+              ${player.bio ? `
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user-alt mr-3 text-blue-600"></i>プロフィール
+                  </h2>
+                  <div class="bg-blue-50 p-6 rounded-lg">
+                    <p class="text-gray-700 leading-relaxed whitespace-pre-line">${player.bio}</p>
+                  </div>
+                </div>
+              ` : ''}
+              
+              <!-- エピソード -->
+              ${player.episode ? `
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-heart mr-3 text-pink-600"></i>エピソード
+                  </h2>
+                  <div class="bg-pink-50 p-6 rounded-lg border-l-4 border-pink-500">
+                    <p class="text-gray-700 leading-relaxed whitespace-pre-line">${player.episode}</p>
+                  </div>
+                </div>
+              ` : ''}
+              
+              <!-- ソーシャルリンク -->
+              ${player.social_links ? `
+                <div class="flex items-center gap-4 pt-6 border-t border-gray-200">
+                  <p class="text-gray-600 font-semibold">SNS:</p>
+                  ${player.social_links.split(',').map(link => `
+                    <a href="${link.trim()}" target="_blank" rel="noopener noreferrer" 
+                       class="text-blue-600 hover:text-blue-800 transition">
+                      <i class="fas fa-external-link-alt mr-1"></i>リンク
+                    </a>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+          
+          <!-- 戻るボタン -->
+          <div class="mt-8 text-center">
+            <button onclick="navigateTo('home')" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition">
+              <i class="fas fa-home mr-2"></i>トップページに戻る
+            </button>
+          </div>
+        </div>
+      </div>
+    ` + renderFooter()
+    
+  } catch (error) {
+    console.error('選手情報の取得に失敗しました:', error)
+    app.innerHTML = renderHeader() + `
+      <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+          <button onclick="navigateTo('home')" class="mb-6 text-gray-600 hover:text-gray-800 transition">
+            <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+          </button>
+          
+          <div class="text-center py-20">
+            <i class="fas fa-exclamation-circle text-6xl text-red-300 mb-6"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-3">選手情報の取得に失敗しました</h2>
+            <p class="text-gray-600 mb-8">選手が見つからないか、データの読み込みに失敗しました。</p>
+            <button onclick="navigateTo('home')" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition">
+              <i class="fas fa-home mr-2"></i>トップページに戻る
+            </button>
+          </div>
+        </div>
+      </div>
+    ` + renderFooter()
+  }
+}
+
+/**
  * 運営者情報ページを表示
  */
 function showOperatorInfo() {
@@ -1386,7 +1584,38 @@ function showOperatorInfo() {
 // アプリケーション初期化
 // ==========================================
 
+/**
+ * URLからページをルーティング
+ */
+function routePage() {
+  const path = window.location.pathname
+  
+  if (path === '/' || path === '') {
+    navigateTo('home', false)
+  } else if (path.startsWith('/players/')) {
+    const playerId = path.replace('/players/', '')
+    navigateTo(`players/${playerId}`, false)
+  } else if (path.startsWith('/guides/')) {
+    const slug = path.replace('/guides/', '')
+    navigateTo(`guides/${slug}`, false)
+  } else if (path === '/players') {
+    navigateTo('players', false)
+  } else {
+    // デフォルトはホームページ
+    navigateTo('home', false)
+  }
+}
+
+// ブラウザの戻る/進むボタンへの対応
+window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.page) {
+    navigateTo(event.state.page, false)
+  } else {
+    routePage()
+  }
+})
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Tochispo LIFE - アプリケーション起動')
-  renderMainPage()
+  routePage()
 })
