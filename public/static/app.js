@@ -557,15 +557,6 @@ function renderFeaturedPlayers(players) {
             </div>
           `).join('')}
         </div>
-        
-        ${players.length > 0 ? `
-          <div class="text-center mt-8">
-            <button onclick="navigateTo('players')" class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <i class="fas fa-users mr-2"></i>すべての注目選手を見る
-              <span class="ml-2 bg-white bg-opacity-20 px-2 py-1 rounded text-sm">${players.length}名</span>
-            </button>
-          </div>
-        ` : ''}
       </div>
     </section>
   `
