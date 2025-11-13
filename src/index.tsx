@@ -736,7 +736,10 @@ app.get('/sitemap.xml', async (c) => {
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>${teamUrls}${guideUrls}${playerUrls}
-</urlset>`, 200, { 'Content-Type': 'application/xml' })
+</urlset>`, 200, { 
+      'Content-Type': 'application/xml; charset=UTF-8',
+      'Cache-Control': 'public, max-age=3600'
+    })
   } catch (error) {
     console.error('Error generating sitemap:', error)
     return c.text('Error generating sitemap', 500)
