@@ -949,7 +949,7 @@ function initHeroSlider() {
 /**
  * 記事詳細ページを表示
  */
-async function renderGuideDetail(slug) {
+async function renderGuideDetailPage(slug) {
   const app = document.getElementById('app')
   
   // ローディング表示
@@ -1138,7 +1138,7 @@ async function renderGuidesList() {
  */
 function showGuideDetail(slug) {
   window.scrollTo(0, 0)
-  renderGuideDetail(slug)
+  navigateTo(`guides/${slug}`)
 }
 
 /**
