@@ -623,41 +623,101 @@ app.delete('/api/admin/guides/:id', async (c) => {
 /**
  * POST /api/admin/local-spots - 周辺スポット追加
  */
-app.post('/api/admin/local-spots', async (c) => {
-  const { venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours } = await c.req.json()
-  
-  const result = await c.env.DB.prepare(`
-    INSERT INTO local_spots (venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours).run()
-  
-  return c.json({ success: true, id: result.meta.last_row_id })
+app.post('/api/admin/local-spots', basicAuth, async (c) => {
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const body = await c.req.json()
+    const { 
+      venue_id, 
+      name, 
+      category, 
+      address = null, 
+      description = null, 
+      walking_time = null, 
+      image_url = null, 
+      website_url = null, 
+      phone = null, 
+      opening_hours = null 
+    } = body
+    
+    const result = await c.env.DB.prepare(`
+      INSERT INTO local_spots (venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours).run()
+    
+    return c.json({ success: true, id: result.meta.last_row_id })
+  } catch (error) {
+    console.error('Error adding local spot:', error)
+    return c.json({ 
+      error: 'Failed to add local spot', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
  * PUT /api/admin/local-spots/:id - 周辺スポット更新
  */
-app.put('/api/admin/local-spots/:id', async (c) => {
-  const id = parseInt(c.req.param('id'))
-  const { venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours } = await c.req.json()
-  
-  await c.env.DB.prepare(`
-    UPDATE local_spots 
-    SET venue_id = ?, name = ?, category = ?, address = ?, description = ?, walking_time = ?, image_url = ?, 
-        website_url = ?, phone = ?, opening_hours = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours, id).run()
-  
-  return c.json({ success: true })
+app.put('/api/admin/local-spots/:id', basicAuth, async (c) => {
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const id = parseInt(c.req.param('id'))
+    const body = await c.req.json()
+    const { 
+      venue_id, 
+      name, 
+      category, 
+      address = null, 
+      description = null, 
+      walking_time = null, 
+      image_url = null, 
+      website_url = null, 
+      phone = null, 
+      opening_hours = null 
+    } = body
+    
+    await c.env.DB.prepare(`
+      UPDATE local_spots 
+      SET venue_id = ?, name = ?, category = ?, address = ?, description = ?, walking_time = ?, image_url = ?, 
+          website_url = ?, phone = ?, opening_hours = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(venue_id, name, category, address, description, walking_time, image_url, website_url, phone, opening_hours, id).run()
+    
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error updating local spot:', error)
+    return c.json({ 
+      error: 'Failed to update local spot', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 /**
  * DELETE /api/admin/local-spots/:id - 周辺スポット削除
  */
-app.delete('/api/admin/local-spots/:id', async (c) => {
-  const id = parseInt(c.req.param('id'))
-  await c.env.DB.prepare('DELETE FROM local_spots WHERE id = ?').bind(id).run()
-  return c.json({ success: true })
+app.delete('/api/admin/local-spots/:id', basicAuth, async (c) => {
+  try {
+    if (!c.env.DB) {
+      return c.json({ error: 'Database not configured' }, 500)
+    }
+
+    const id = parseInt(c.req.param('id'))
+    await c.env.DB.prepare('DELETE FROM local_spots WHERE id = ?').bind(id).run()
+    return c.json({ success: true })
+  } catch (error) {
+    console.error('Error deleting local spot:', error)
+    return c.json({ 
+      error: 'Failed to delete local spot', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
 })
 
 // ==========================================
