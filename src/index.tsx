@@ -623,7 +623,7 @@ app.delete('/api/admin/guides/:id', async (c) => {
 /**
  * POST /api/admin/local-spots - 周辺スポット追加
  */
-app.post('/api/admin/local-spots', basicAuth, async (c) => {
+app.post('/api/admin/local-spots', async (c) => {
   try {
     if (!c.env.DB) {
       return c.json({ error: 'Database not configured' }, 500)
@@ -661,7 +661,7 @@ app.post('/api/admin/local-spots', basicAuth, async (c) => {
 /**
  * PUT /api/admin/local-spots/:id - 周辺スポット更新
  */
-app.put('/api/admin/local-spots/:id', basicAuth, async (c) => {
+app.put('/api/admin/local-spots/:id', async (c) => {
   try {
     if (!c.env.DB) {
       return c.json({ error: 'Database not configured' }, 500)
@@ -702,7 +702,7 @@ app.put('/api/admin/local-spots/:id', basicAuth, async (c) => {
 /**
  * DELETE /api/admin/local-spots/:id - 周辺スポット削除
  */
-app.delete('/api/admin/local-spots/:id', basicAuth, async (c) => {
+app.delete('/api/admin/local-spots/:id', async (c) => {
   try {
     if (!c.env.DB) {
       return c.json({ error: 'Database not configured' }, 500)
