@@ -936,4 +936,43 @@ app.get('/admin', async (c) => {
 </html>`)
 })
 
+/**
+ * Catch-all route for SPA - すべてのページリクエストをメインページのHTMLで返す
+ */
+app.get('*', async (c) => {
+  const path = c.req.path
+  
+  // API, admin, robots.txt, sitemap.xml, staticファイルは除外
+  if (path.startsWith('/api/') || path.startsWith('/admin') || path === '/robots.txt' || path === '/sitemap.xml' || path.startsWith('/static/')) {
+    return c.notFound()
+  }
+  
+  // メインページと同じHTMLを返す（JavaScriptルーターが処理）
+  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
+  
+  return c.html(`<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE</title>
+    <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
+    <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="/static/app.js?v=${Date.now()}"></script>
+</body>
+</html>`)
+})
+
 export default app
