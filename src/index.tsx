@@ -9,20 +9,18 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url)
 
+  // 旧ドメインで来たアクセスは新ドメインに301リダイレクト
   if (url.hostname === 'tochspo-life.pages.dev') {
     url.hostname = 'tochspo-life.irohacs.com'
     return c.redirect(url.toString(), 301)
   }
 
-  return next()
+  await next()
 })
 
 // サイトのベースURL（カノニカルURL用）
 const SITE_URL = 'https://tochspo-life.irohacs.com'
 
-
-// サイトのベースURL（カノニカルURL用）
-const SITE_URL = 'https://tochspo-life.irohacs.com'
 
 // CORS設定
 app.use('/api/*', cors())
