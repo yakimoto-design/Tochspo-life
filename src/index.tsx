@@ -5,6 +5,9 @@ import type { CloudflareBindings, Team, Match, Player, Venue, GuideArticle, Loca
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
+// サイトのベースURL（カノニカルURL用）
+const SITE_URL = 'https://tochspo-life.irohacs.com'
+
 // CORS設定
 app.use('/api/*', cors())
 
@@ -728,14 +731,12 @@ app.delete('/api/admin/local-spots/:id', async (c) => {
  * GET /robots.txt - Robotsファイル
  */
 app.get('/robots.txt', async (c) => {
-  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
-  
   return c.text(`User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/admin/
 
-Sitemap: ${siteUrl}/sitemap.xml`)
+Sitemap: ${SITE_URL}/sitemap.xml`)
 })
 
 /**
@@ -746,8 +747,6 @@ app.get('/sitemap.xml', async (c) => {
     if (!c.env.DB) {
       return c.text('Database not configured', 500)
     }
-    
-    const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
     
     // チーム一覧を取得
     const teams = await c.env.DB.prepare('SELECT id FROM teams').all()
@@ -760,7 +759,7 @@ app.get('/sitemap.xml', async (c) => {
   
   const teamUrls = teams.results.map((team: any) => `
   <url>
-    <loc>${siteUrl}/team/${team.id}</loc>
+    <loc>${SITE_URL}/team/${team.id}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -768,7 +767,7 @@ app.get('/sitemap.xml', async (c) => {
   
   const guideUrls = guides.results.map((guide: any) => `
   <url>
-    <loc>${siteUrl}/guide/${guide.slug}</loc>
+    <loc>${SITE_URL}/guides/${guide.slug}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -776,7 +775,7 @@ app.get('/sitemap.xml', async (c) => {
   
   const playerUrls = players.results.map((player: any) => `
   <url>
-    <loc>${siteUrl}/players/${player.id}</loc>
+    <loc>${SITE_URL}/players/${player.id}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -785,13 +784,13 @@ app.get('/sitemap.xml', async (c) => {
   return c.text(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>${siteUrl}/</loc>
+    <loc>${SITE_URL}/</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${siteUrl}/players</loc>
+    <loc>${SITE_URL}/players</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -814,8 +813,6 @@ app.get('/sitemap.xml', async (c) => {
  * GET / - メインページ
  */
 app.get('/', async (c) => {
-  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
-  
   return c.html(`<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -829,23 +826,23 @@ app.get('/', async (c) => {
     <meta name="keywords" content="栃木,スポーツ,プロスポーツ,宇都宮ブレックス,栃木SC,アイスバックス,ブリッツェン,ゴールデンブレーブス,栃木シティFC,バスケットボール,サッカー,アイスホッケー,野球,サイクルロードレース">
     <meta name="author" content="Tochispo LIFE">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="${siteUrl}/">
+    <link rel="canonical" href="${SITE_URL}/">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="${siteUrl}/">
+    <meta property="og:url" content="${SITE_URL}/">
     <meta property="og:title" content="Tochispo LIFE - 栃木のプロスポーツをもっと身近に">
     <meta property="og:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。宇都宮ブレックス、栃木SC、アイスバックスなど栃木のスポーツを応援しよう！">
-    <meta property="og:image" content="${siteUrl}/static/og-image.png">
+    <meta property="og:image" content="${SITE_URL}/static/og-image.png">
     <meta property="og:site_name" content="Tochispo LIFE">
     <meta property="og:locale" content="ja_JP">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="${siteUrl}/">
+    <meta name="twitter:url" content="${SITE_URL}/">
     <meta name="twitter:title" content="Tochispo LIFE - 栃木のプロスポーツをもっと身近に">
     <meta name="twitter:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。">
-    <meta name="twitter:image" content="${siteUrl}/static/og-image.png">
+    <meta name="twitter:image" content="${SITE_URL}/static/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🔥</text></svg>">
@@ -871,8 +868,8 @@ app.get('/', async (c) => {
       "@type": "SportsOrganization",
       "name": "Tochispo LIFE",
       "description": "栃木県の6つのプロスポーツチームを応援する総合スポーツ情報サイト",
-      "url": "${siteUrl}",
-      "logo": "${siteUrl}/static/logo.png",
+      "url": "${SITE_URL}",
+      "logo": "${SITE_URL}/static/logo.png",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "栃木県",
@@ -948,8 +945,6 @@ app.get('*', async (c) => {
   }
   
   // メインページと同じHTMLを返す（JavaScriptルーターが処理）
-  const siteUrl = c.req.url.split('/').slice(0, 3).join('/')
-  
   return c.html(`<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -960,6 +955,7 @@ app.get('*', async (c) => {
     <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE</title>
     <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
     <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
+    <link rel="canonical" href="${SITE_URL}${path}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
