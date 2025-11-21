@@ -5,6 +5,22 @@ import type { CloudflareBindings, Team, Match, Player, Venue, GuideArticle, Loca
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
 
+// 旧ドメイン → 新ドメインへのリダイレクト
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url)
+
+  if (url.hostname === 'tochspo-life.pages.dev') {
+    url.hostname = 'tochspo-life.irohacs.com'
+    return c.redirect(url.toString(), 301)
+  }
+
+  return next()
+})
+
+// サイトのベースURL（カノニカルURL用）
+const SITE_URL = 'https://tochspo-life.irohacs.com'
+
+
 // サイトのベースURL（カノニカルURL用）
 const SITE_URL = 'https://tochspo-life.irohacs.com'
 
