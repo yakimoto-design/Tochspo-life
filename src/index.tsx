@@ -956,8 +956,75 @@ app.get('*', async (c) => {
     return c.notFound()
   }
   
-  // メインページと同じHTMLを返す（JavaScriptルーターが処理）
   const siteUrl = getSiteUrl(c.req.raw)
+  
+  // ページごとに異なるメタタグを生成
+  let title = 'とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE'
+  let description = '栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。'
+  let ogImage = 'https://placehold.co/1200x630/1e3a8a/ffffff?text=Tochispo+LIFE'
+  
+  // 選手詳細ページ
+  if (path.match(/^\/players\/\d+$/)) {
+    const playerId = path.split('/')[2]
+    try {
+      const player = await c.env.DB.prepare(`
+        SELECT p.*, t.name as team_name, t.sport_type
+        FROM players p
+        LEFT JOIN teams t ON p.team_id = t.id
+        WHERE p.id = ?
+      `).bind(parseInt(playerId)).first()
+      
+      if (player) {
+        title = `${player.name} - ${player.team_name} | とちスポLIFE`
+        description = `${player.name}（${player.team_name}）のプロフィール、背番号、ポジション、身長、体重、生年月日などの詳細情報。${player.bio || ''}`
+        if (player.photo_url) {
+          ogImage = player.photo_url
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch player:', error)
+    }
+  }
+  
+  // 選手一覧ページ
+  else if (path === '/players') {
+    title = '注目選手一覧 | とちスポLIFE'
+    description = '栃木県のプロスポーツチーム所属選手の一覧。宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFCの選手情報。'
+  }
+  
+  // チーム詳細ページ
+  else if (path.match(/^\/team\/\d+$/)) {
+    const teamId = path.split('/')[2]
+    try {
+      const team = await c.env.DB.prepare('SELECT * FROM teams WHERE id = ?').bind(parseInt(teamId)).first()
+      if (team) {
+        title = `${team.name} - チーム詳細 | とちスポLIFE`
+        description = `${team.name}のチーム情報、試合日程、所属選手、観戦ガイドを掲載。${team.description || ''}`
+        if (team.logo_url) {
+          ogImage = team.logo_url
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch team:', error)
+    }
+  }
+  
+  // 記事詳細ページ
+  else if (path.match(/^\/guides\/.+$/)) {
+    const slug = path.split('/')[2]
+    try {
+      const guide = await c.env.DB.prepare('SELECT * FROM guide_articles WHERE slug = ?').bind(slug).first()
+      if (guide) {
+        title = `${guide.title} | とちスポLIFE`
+        description = guide.content ? guide.content.substring(0, 150) : '栃木県のプロスポーツ観戦ガイド'
+        if (guide.thumbnail_url) {
+          ogImage = guide.thumbnail_url
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch guide:', error)
+    }
+  }
   
   return c.html(`<!DOCTYPE html>
 <html lang="ja">
@@ -966,10 +1033,24 @@ app.get('*', async (c) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
     <!-- Primary Meta Tags -->
-    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE</title>
-    <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
-    <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
+    <title>${title}</title>
+    <meta name="title" content="${title}">
+    <meta name="description" content="${description}">
     <link rel="canonical" href="${siteUrl}${path}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="${siteUrl}${path}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${ogImage}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="${siteUrl}${path}">
+    <meta property="twitter:title" content="${title}">
+    <meta property="twitter:description" content="${description}">
+    <meta property="twitter:image" content="${ogImage}">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
