@@ -1,0 +1,3 @@
+# Redirect pages.dev to custom domain
+https://tochspo-life.pages.dev/* https://tochspo-life.irohacs.com/:splat 301!
+https://*.tochspo-life.pages.dev/* https://tochspo-life.irohacs.com/:splat 301!
