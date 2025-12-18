@@ -265,6 +265,61 @@ app.get('/api/guides/:slug', async (c) => {
 })
 
 /**
+ * GET /api/seo-pages - SEOページ一覧
+ */
+app.get('/api/seo-pages', async (c) => {
+  try {
+    const category = c.req.query('category')
+    
+    let query = 'SELECT * FROM seo_pages WHERE is_published = 1'
+    const params: any[] = []
+    
+    if (category) {
+      query += ' AND category = ?'
+      params.push(category)
+    }
+    
+    query += ' ORDER BY created_at DESC'
+    
+    const stmt = c.env.DB.prepare(query)
+    const pages = params.length > 0 ? await stmt.bind(...params).all() : await stmt.all()
+    
+    return c.json(pages.results || [])
+  } catch (error) {
+    console.error('Error fetching SEO pages:', error)
+    return c.json({ 
+      error: 'Failed to fetch SEO pages', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
+})
+
+/**
+ * GET /api/seo-pages/:slug - SEOページ詳細
+ */
+app.get('/api/seo-pages/:slug', async (c) => {
+  try {
+    const slug = c.req.param('slug')
+    const page = await c.env.DB.prepare('SELECT * FROM seo_pages WHERE slug = ? AND is_published = 1').bind(slug).first()
+    
+    if (!page) {
+      return c.json({ error: 'Page not found' }, 404)
+    }
+    
+    // ビューカウント増加
+    await c.env.DB.prepare('UPDATE seo_pages SET view_count = view_count + 1 WHERE id = ?').bind(page.id).run()
+    
+    return c.json(page)
+  } catch (error) {
+    console.error('Error fetching SEO page:', error)
+    return c.json({ 
+      error: 'Failed to fetch SEO page', 
+      details: error instanceof Error ? error.message : String(error) 
+    }, 500)
+  }
+})
+
+/**
  * GET /api/local-spots - 周辺スポット一覧
  */
 app.get('/api/local-spots', async (c) => {
@@ -766,6 +821,9 @@ app.get('/sitemap.xml', async (c) => {
     
     // 選手一覧を取得
     const players = await c.env.DB.prepare('SELECT id FROM players').all()
+    
+    // SEOページ一覧を取得
+    const seoPages = await c.env.DB.prepare('SELECT slug FROM seo_pages WHERE is_published = 1').all()
   
   const teamUrls = teams.results.map((team: any) => `
   <url>
@@ -791,6 +849,14 @@ app.get('/sitemap.xml', async (c) => {
     <priority>0.9</priority>
   </url>`).join('')
   
+  const seoPageUrls = seoPages.results.map((page: any) => `
+  <url>
+    <loc>${siteUrl}/${page.slug}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+  </url>`).join('')
+  
   return c.text(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -804,7 +870,7 @@ app.get('/sitemap.xml', async (c) => {
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-  </url>${teamUrls}${guideUrls}${playerUrls}
+  </url>${seoPageUrls}${teamUrls}${guideUrls}${playerUrls}
 </urlset>`, 200, { 
       'Content-Type': 'application/xml; charset=UTF-8',
       'Cache-Control': 'public, max-age=3600'
@@ -832,10 +898,10 @@ app.get('/', async (c) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     
     <!-- Primary Meta Tags -->
-    <title>とちスポLIFE - 栃木のプロスポーツをもっと身近に | Tochispo LIFE</title>
-    <meta name="title" content="とちスポLIFE - 栃木のプロスポーツをもっと身近に">
-    <meta name="description" content="栃木県の6つのプロスポーツチーム（宇都宮ブレックス、栃木SC、H.C.栃木日光アイスバックス、宇都宮ブリッツェン、栃木ゴールデンブレーブス、栃木シティFC）の試合情報、選手情報、観戦ガイドを掲載。">
-    <meta name="keywords" content="栃木,スポーツ,プロスポーツ,宇都宮ブレックス,栃木SC,アイスバックス,ブリッツェン,ゴールデンブレーブス,栃木シティFC,バスケットボール,サッカー,アイスホッケー,野球,サイクルロードレース">
+    <title>【家族で楽しむ】栃木のプロスポーツ観戦ガイド - とちスポLIFE | お出かけスポット・試合情報</title>
+    <meta name="title" content="【家族で楽しむ】栃木のプロスポーツ観戦ガイド - とちスポLIFE">
+    <meta name="description" content="栃木で家族とスポーツ観戦！子供連れOK、初心者向けの完全ガイド。宇都宮ブレックス、栃木SCなど6チームの試合情報、選手紹介、観戦ガイド、周辺お出かけスポットを掲載。週末のお出かけに最適。">
+    <meta name="keywords" content="栃木 家族 お出かけ,栃木 スポーツ観戦 初心者,子供連れ 観戦,宇都宮 週末 イベント,栃木 お出かけスポット,宇都宮ブレックス,栃木SC,バスケ観戦 子供,サッカー観戦 家族,栃木 室内 遊び場">
     <meta name="author" content="Tochispo LIFE">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="${siteUrl}/">
@@ -843,8 +909,8 @@ app.get('/', async (c) => {
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="${siteUrl}/">
-    <meta property="og:title" content="Tochispo LIFE - 栃木のプロスポーツをもっと身近に">
-    <meta property="og:description" content="栃木県の6つのプロスポーツチームの試合情報、選手情報、観戦ガイドを掲載。宇都宮ブレックス、栃木SC、アイスバックスなど栃木のスポーツを応援しよう！">
+    <meta property="og:title" content="【家族で楽しむ】栃木のプロスポーツ観戦ガイド | とちスポLIFE">
+    <meta property="og:description" content="栃木で家族とスポーツ観戦！子供連れでも安心の完全ガイド。初めての方向けに試合情報、観戦マナー、持ち物、周辺お出かけスポットをご紹介。週末のお出かけに最適。">
     <meta property="og:image" content="${siteUrl}/static/og-image.png">
     <meta property="og:site_name" content="Tochispo LIFE">
     <meta property="og:locale" content="ja_JP">
@@ -1023,6 +1089,23 @@ app.get('*', async (c) => {
       }
     } catch (error) {
       console.error('Failed to fetch guide:', error)
+    }
+  }
+  
+  // SEOページ（家族向け観戦ガイド、お出かけスポット、FAQなど）
+  else if (path === '/family-guide' || path === '/outing-spots' || path === '/faq') {
+    const slug = path.substring(1) // 先頭の'/'を除去
+    try {
+      const seoPage = await c.env.DB.prepare('SELECT * FROM seo_pages WHERE slug = ? AND is_published = 1').bind(slug).first()
+      if (seoPage) {
+        title = seoPage.meta_title
+        description = seoPage.meta_description
+        if (seoPage.featured_image_url) {
+          ogImage = seoPage.featured_image_url
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch SEO page:', error)
     }
   }
   

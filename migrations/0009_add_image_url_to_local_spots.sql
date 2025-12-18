@@ -1,0 +1,2 @@
+-- Add image_url column to local_spots table (if not exists)
+-- This migration is intentionally empty as the column already exists

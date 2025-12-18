@@ -61,6 +61,9 @@ function navigateTo(page, pushState = true) {
   } else if (page.startsWith('guides/')) {
     const slug = page.replace('guides/', '')
     renderGuideDetailPage(slug)
+  } else if (page.startsWith('seo-page/')) {
+    const slug = page.replace('seo-page/', '')
+    renderSeoPage(slug)
   }
   // ページ遷移時はトップにスクロール
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1036,6 +1039,128 @@ async function renderGuideDetailPage(slug) {
 }
 
 /**
+ * SEOページをレンダリング
+ */
+async function renderSeoPage(slug) {
+  const app = document.getElementById('app')
+  
+  // ローディング表示
+  app.innerHTML = renderHeader() + '<div class="container mx-auto px-4 py-12"><div class="text-center"><div class="loading mx-auto"></div><p class="mt-4 text-gray-600">読み込み中...</p></div></div>'
+  
+  try {
+    const response = await axios.get(`/api/seo-pages/${slug}`)
+    const page = response.data
+    
+    // Markdown形式のコンテンツをHTMLに変換
+    let contentHtml = page.content
+      .replace(/^# (.+)$/gm, '<h1 class="text-4xl font-bold mb-6 mt-8 text-gray-900">$1</h1>')
+      .replace(/^## (.+)$/gm, '<h2 class="text-3xl font-bold mb-4 mt-8 text-gray-800 border-b-2 border-blue-600 pb-2">$1</h2>')
+      .replace(/^### (.+)$/gm, '<h3 class="text-2xl font-bold mb-3 mt-6 text-gray-700">$1</h3>')
+      .replace(/^#### (.+)$/gm, '<h4 class="text-xl font-bold mb-2 mt-4 text-gray-700">$1</h4>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+      .replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed text-lg">')
+    
+    // チェックリストアイテム（✅付き）
+    contentHtml = contentHtml.replace(/^✅ \*\*(.+?)\*\*$/gm, '<li class="flex items-start mb-2"><span class="text-green-600 mr-2 text-xl">✅</span><span class="font-bold text-gray-900">$1</span></li>')
+    contentHtml = contentHtml.replace(/^✅ (.+)$/gm, '<li class="flex items-start mb-2"><span class="text-green-600 mr-2 text-xl">✅</span><span class="text-gray-700">$1</span></li>')
+    
+    // 通常のリストアイテム
+    contentHtml = contentHtml.replace(/((?:^- .+$\n?)+)/gm, '<ul class="list-disc list-inside mb-6 ml-4 space-y-2">$1</ul>')
+    contentHtml = contentHtml.replace(/^- (.+)$/gm, '<li class="text-gray-700">$1</li>')
+    
+    // コードブロック
+    contentHtml = contentHtml.replace(/```([\\s\\S]+?)```/g, '<pre class="bg-gray-100 p-4 rounded-lg mb-4 overflow-x-auto"><code>$1</code></pre>')
+    
+    // 段落の開始
+    if (!contentHtml.startsWith('<')) {
+      contentHtml = '<p class="mb-4 text-gray-700 leading-relaxed text-lg">' + contentHtml
+    }
+    if (!contentHtml.endsWith('</p>')) {
+      contentHtml += '</p>'
+    }
+    
+    // アイコンマッピング
+    const iconMap = {
+      'family-guide': 'fa-users',
+      'outing-spots': 'fa-map-marked-alt',
+      'faq': 'fa-question-circle'
+    }
+    const icon = iconMap[slug] || 'fa-file-alt'
+    
+    app.innerHTML = renderHeader() + `
+      <div class="bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4 py-8">
+          <button onclick="navigateTo('home')" class="mb-6 text-gray-600 hover:text-gray-800 transition">
+            <i class="fas fa-arrow-left mr-2"></i>トップページに戻る
+          </button>
+          
+          <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-12 text-center">
+              <div class="text-7xl mb-6">
+                <i class="fas ${icon} text-yellow-300"></i>
+              </div>
+              <h1 class="text-5xl font-bold mb-4">${page.title}</h1>
+              <p class="text-xl opacity-90 max-w-3xl mx-auto">${page.meta_description}</p>
+            </div>
+            
+            ${page.featured_image_url ? `
+              <img src="${page.featured_image_url}" alt="${page.title}" class="w-full h-96 object-cover">
+            ` : ''}
+            
+            <div class="p-12">
+              <div class="prose prose-lg max-w-none">
+                ${contentHtml}
+              </div>
+              
+              <div class="mt-16 grid md:grid-cols-2 gap-6">
+                <div class="p-6 bg-blue-50 rounded-lg">
+                  <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-calendar-check mr-2 text-blue-600"></i>
+                    試合スケジュールをチェック
+                  </h3>
+                  <p class="text-gray-700 mb-4">
+                    今月の試合スケジュールを確認して、家族で観戦に行きましょう！
+                  </p>
+                  <button onclick="navigateTo('home')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition w-full">
+                    <i class="fas fa-home mr-2"></i>試合一覧を見る
+                  </button>
+                </div>
+                
+                <div class="p-6 bg-green-50 rounded-lg">
+                  <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-users mr-2 text-green-600"></i>
+                    注目選手をチェック
+                  </h3>
+                  <p class="text-gray-700 mb-4">
+                    栃木のプロスポーツ選手をもっと知って、応援しましょう！
+                  </p>
+                  <button onclick="navigateTo('players')" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition w-full">
+                    <i class="fas fa-star mr-2"></i>選手一覧を見る
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ` + renderFooter()
+    
+  } catch (error) {
+    console.error('ページ情報の読み込みに失敗しました:', error)
+    app.innerHTML = renderHeader() + `
+      <div class="container mx-auto px-4 py-12 text-center">
+        <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">エラーが発生しました</h2>
+        <p class="text-gray-600 mb-6">ページ情報の読み込みに失敗しました。</p>
+        <button onclick="navigateTo('home')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg">
+          <i class="fas fa-home mr-2"></i>トップページに戻る
+        </button>
+      </div>
+    ` + renderFooter()
+  }
+}
+
+/**
  * 記事一覧ページをレンダリング
  */
 async function renderGuidesList() {
@@ -1591,6 +1716,12 @@ function routePage() {
     navigateTo(`guides/${slug}`, false)
   } else if (path === '/players') {
     navigateTo('players', false)
+  } else if (path === '/family-guide') {
+    navigateTo('seo-page/family-guide', false)
+  } else if (path === '/outing-spots') {
+    navigateTo('seo-page/outing-spots', false)
+  } else if (path === '/faq') {
+    navigateTo('seo-page/faq', false)
   } else {
     // デフォルトはホームページ
     navigateTo('home', false)
