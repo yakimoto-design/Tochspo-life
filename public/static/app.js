@@ -502,9 +502,9 @@ function renderFeaturedPlayers(players) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           ${players.slice(0, 12).map(player => `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
-              <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 h-48 flex items-center justify-center">
+              <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 aspect-[3/4] flex items-center justify-center">
                 ${player.photo_url ? `
-                  <img src="${player.photo_url}" alt="${player.name}" class="w-full h-full object-cover">
+                  <img src="${player.photo_url}" alt="${player.name}" class="absolute inset-0 w-full h-full object-cover">
                 ` : `
                   <div class="text-white text-6xl">
                     <i class="fas fa-user-circle"></i>
@@ -529,13 +529,13 @@ function renderFeaturedPlayers(players) {
                 </p>
                 
                 ${player.position ? `
-                  <p class="text-sm text-gray-600 mb-2">
+                  <p class="text-sm text-gray-600 mb-3">
                     <i class="fas fa-running mr-1"></i>
                     ${player.position}
                   </p>
                 ` : ''}
                 
-                <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                <div class="flex items-center gap-3 text-xs text-gray-500">
                   ${player.height ? `
                     <span><i class="fas fa-arrows-alt-v mr-1"></i>${player.height}cm</span>
                   ` : ''}
@@ -543,19 +543,6 @@ function renderFeaturedPlayers(players) {
                     <span><i class="fas fa-weight mr-1"></i>${player.weight}kg</span>
                   ` : ''}
                 </div>
-                
-                ${player.bio ? `
-                  <p class="text-sm text-gray-600 line-clamp-2 mb-2">${player.bio}</p>
-                ` : ''}
-                
-                ${player.episode ? `
-                  <div class="mt-2 pt-2 border-t border-gray-200">
-                    <p class="text-xs text-pink-600 font-bold mb-1">
-                      <i class="fas fa-heart mr-1"></i>エピソード
-                    </p>
-                    <p class="text-xs text-gray-600 line-clamp-3">${player.episode}</p>
-                  </div>
-                ` : ''}
               </div>
             </div>
           `).join('')}
