@@ -614,6 +614,90 @@ function renderTeams(teams) {
 /**
  * 観戦ガイドセクションをレンダリング
  */
+/**
+ * 家族向けガイドセクションをレンダリング
+ */
+function renderFamilyGuides() {
+  return `
+    <section class="py-16 bg-gradient-to-br from-blue-50 to-purple-50">
+      <div class="container mx-auto px-4">
+        <div class="section-header text-center">
+          <h2 class="text-4xl font-bold text-gray-800 mb-3">
+            <i class="fas fa-users mr-3 text-blue-600"></i>
+            家族で楽しむスポーツ観戦
+          </h2>
+          <p class="text-gray-600 text-lg">初めての方でも安心！家族向けの完全ガイド</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <!-- 家族向け観戦ガイド -->
+          <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition cursor-pointer transform hover:-translate-y-2" onclick="navigateTo('seo-page/family-guide')">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-center">
+              <i class="fas fa-users text-7xl text-white mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">家族向け<br>観戦ガイド</h3>
+            </div>
+            <div class="p-6">
+              <p class="text-gray-600 mb-4">
+                子供連れでも安心！持ち物、座席選び、会場サービスなど、初めての方向けの完全ガイド
+              </p>
+              <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>おすすめ座席</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>持ち物チェックリスト</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>授乳室・キッズスペース</li>
+              </ul>
+              <div class="text-blue-600 font-bold text-center">
+                詳しく見る <i class="fas fa-arrow-right ml-2"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- お出かけスポット -->
+          <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition cursor-pointer transform hover:-translate-y-2" onclick="navigateTo('seo-page/outing-spots')">
+            <div class="bg-gradient-to-r from-green-600 to-green-700 p-8 text-center">
+              <i class="fas fa-map-marked-alt text-7xl text-white mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">お出かけ<br>スポット</h3>
+            </div>
+            <div class="p-6">
+              <p class="text-gray-600 mb-4">
+                試合前後に立ち寄れる！栃木の観光スポット、グルメ、遊び場をご紹介
+              </p>
+              <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>宇都宮餃子めぐり</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>日光観光コース</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>モデルコース紹介</li>
+              </ul>
+              <div class="text-green-600 font-bold text-center">
+                詳しく見る <i class="fas fa-arrow-right ml-2"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- よくある質問 -->
+          <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition cursor-pointer transform hover:-translate-y-2" onclick="navigateTo('seo-page/faq')">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-700 p-8 text-center">
+              <i class="fas fa-question-circle text-7xl text-white mb-4"></i>
+              <h3 class="text-2xl font-bold text-white">よくある<br>質問</h3>
+            </div>
+            <div class="p-6">
+              <p class="text-gray-600 mb-4">
+                スポーツ観戦が初めての方へ。チケット、服装、マナーなど疑問を解決
+              </p>
+              <ul class="text-sm text-gray-600 space-y-2 mb-4">
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>チケットの買い方</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>服装・持ち物</li>
+                <li><i class="fas fa-check-circle text-green-600 mr-2"></i>観戦マナー</li>
+              </ul>
+              <div class="text-purple-600 font-bold text-center">
+                詳しく見る <i class="fas fa-arrow-right ml-2"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  `
+}
+
 function renderGuides(guides) {
   if (guides.length === 0) {
     return ''
@@ -853,7 +937,12 @@ function renderFooter() {
               <li><a href="#schedule" onclick="scrollToSection('schedule')"><i class="fas fa-calendar mr-2"></i>今週末の試合</a></li>
               <li><a href="#teams" onclick="scrollToSection('teams')"><i class="fas fa-users mr-2"></i>チーム一覧</a></li>
               <li><a href="#guides" onclick="scrollToSection('guides')"><i class="fas fa-book mr-2"></i>コラム</a></li>
-              <li><a href="javascript:void(0)" onclick="showOperatorInfo()"><i class="fas fa-info-circle mr-2"></i>運営事務局</a></li>
+            </ul>
+            <h3 class="text-white font-bold mb-4 mt-6">家族向けガイド</h3>
+            <ul class="text-sm space-y-2">
+              <li><a href="javascript:void(0)" onclick="navigateTo('seo-page/family-guide')"><i class="fas fa-users mr-2"></i>家族向け観戦ガイド</a></li>
+              <li><a href="javascript:void(0)" onclick="navigateTo('seo-page/outing-spots')"><i class="fas fa-map-marked-alt mr-2"></i>お出かけスポット</a></li>
+              <li><a href="javascript:void(0)" onclick="navigateTo('seo-page/faq')"><i class="fas fa-question-circle mr-2"></i>よくある質問</a></li>
             </ul>
           </div>
         </div>
@@ -891,6 +980,7 @@ async function renderMainPage() {
     renderStats(AppState.stats) +
     renderUpcomingMatches(AppState.matches) +
     renderFeaturedPlayers(AppState.featuredPlayers) +
+    renderFamilyGuides() +
     renderTeams(AppState.teams) +
     renderGuides(AppState.guides) +
     renderLocalSpots() +
