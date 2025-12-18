@@ -501,46 +501,46 @@ function renderFeaturedPlayers(players) {
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           ${players.slice(0, 12).map(player => `
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
+            <div class="player-card" onclick="showPlayerDetail(${player.id})">
               <div class="player-card-image">
                 ${player.photo_url ? `
                   <img src="${player.photo_url}" alt="${player.name}">
                 ` : `
-                  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-white text-6xl">
+                  <div class="icon-placeholder">
                     <i class="fas fa-user-circle"></i>
                   </div>
                 `}
-                <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold" style="z-index: 10;">
-                  <i class="fas fa-star mr-1"></i>注目
+                <div style="position: absolute; top: 8px; right: 8px; background: #eab308; color: white; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; z-index: 10;">
+                  <i class="fas fa-star" style="margin-right: 4px;"></i>注目
                 </div>
               </div>
               
-              <div class="p-4">
-                <div class="flex items-center justify-between mb-2">
-                  <h3 class="text-lg font-bold text-gray-800">${player.name}</h3>
+              <div class="player-card-info">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                  <h3 style="font-size: 18px; font-weight: bold; color: #1f2937;">${player.name}</h3>
                   ${player.uniform_number ? `
-                    <span class="text-2xl font-bold text-blue-600">#${player.uniform_number}</span>
+                    <span style="font-size: 24px; font-weight: bold; color: #2563eb;">#${player.uniform_number}</span>
                   ` : ''}
                 </div>
                 
-                <p class="text-sm text-gray-600 mb-2">
-                  <i class="fas ${getSportIcon(player.sport_type)} mr-1"></i>
+                <p style="font-size: 14px; color: #4b5563; margin-bottom: 4px;">
+                  <i class="fas ${getSportIcon(player.sport_type)}" style="margin-right: 4px;"></i>
                   ${player.team_name}
                 </p>
                 
                 ${player.position ? `
-                  <p class="text-sm text-gray-600 mb-3">
-                    <i class="fas fa-running mr-1"></i>
+                  <p style="font-size: 14px; color: #4b5563; margin-bottom: 8px;">
+                    <i class="fas fa-running" style="margin-right: 4px;"></i>
                     ${player.position}
                   </p>
                 ` : ''}
                 
-                <div class="flex items-center gap-3 text-xs text-gray-500">
+                <div style="display: flex; gap: 12px; font-size: 12px; color: #6b7280;">
                   ${player.height ? `
-                    <span><i class="fas fa-arrows-alt-v mr-1"></i>${player.height}cm</span>
+                    <span><i class="fas fa-arrows-alt-v" style="margin-right: 4px;"></i>${player.height}cm</span>
                   ` : ''}
                   ${player.weight ? `
-                    <span><i class="fas fa-weight mr-1"></i>${player.weight}kg</span>
+                    <span><i class="fas fa-weight" style="margin-right: 4px;"></i>${player.weight}kg</span>
                   ` : ''}
                 </div>
               </div>
@@ -1435,43 +1435,43 @@ async function renderPlayersPage() {
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               ${players.map(player => `
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
+                <div class="player-card" onclick="showPlayerDetail(${player.id})">
                   <div class="player-card-image">
                     ${player.photo_url ? `
                       <img src="${player.photo_url}" alt="${player.name}">
                     ` : `
-                      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-white text-6xl">
+                      <div class="icon-placeholder">
                         <i class="fas fa-user-circle"></i>
                       </div>
                     `}
                     ${player.is_featured ? `
-                      <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold" style="z-index: 10;">
-                        <i class="fas fa-star mr-1"></i>注目
+                      <div style="position: absolute; top: 8px; right: 8px; background: #eab308; color: white; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; z-index: 10;">
+                        <i class="fas fa-star" style="margin-right: 4px;"></i>注目
                       </div>
                     ` : ''}
                   </div>
                   
-                  <div class="p-4">
-                    <div class="flex items-center justify-between mb-2">
-                      <h3 class="text-lg font-bold text-gray-800">${player.name}</h3>
+                  <div class="player-card-info">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                      <h3 style="font-size: 18px; font-weight: bold; color: #1f2937;">${player.name}</h3>
                       ${player.uniform_number ? `
-                        <span class="text-2xl font-bold text-blue-600">#${player.uniform_number}</span>
+                        <span style="font-size: 24px; font-weight: bold; color: #2563eb;">#${player.uniform_number}</span>
                       ` : ''}
                     </div>
                     
                     ${player.position ? `
-                      <p class="text-sm text-gray-600 mb-3">
-                        <i class="fas fa-running mr-1"></i>
+                      <p style="font-size: 14px; color: #4b5563; margin-bottom: 8px;">
+                        <i class="fas fa-running" style="margin-right: 4px;"></i>
                         ${player.position}
                       </p>
                     ` : ''}
                     
-                    <div class="flex items-center gap-3 text-xs text-gray-500">
+                    <div style="display: flex; gap: 12px; font-size: 12px; color: #6b7280;">
                       ${player.height ? `
-                        <span><i class="fas fa-arrows-alt-v mr-1"></i>${player.height}cm</span>
+                        <span><i class="fas fa-arrows-alt-v" style="margin-right: 4px;"></i>${player.height}cm</span>
                       ` : ''}
                       ${player.weight ? `
-                        <span><i class="fas fa-weight mr-1"></i>${player.weight}kg</span>
+                        <span><i class="fas fa-weight" style="margin-right: 4px;"></i>${player.weight}kg</span>
                       ` : ''}
                     </div>
                   </div>
