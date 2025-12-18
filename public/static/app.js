@@ -502,15 +502,15 @@ function renderFeaturedPlayers(players) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           ${players.slice(0, 12).map(player => `
             <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
-              <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 aspect-[3/4] flex items-center justify-center">
+              <div class="player-card-image">
                 ${player.photo_url ? `
-                  <img src="${player.photo_url}" alt="${player.name}" class="absolute inset-0 w-full h-full object-cover">
+                  <img src="${player.photo_url}" alt="${player.name}">
                 ` : `
-                  <div class="text-white text-6xl">
+                  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-white text-6xl">
                     <i class="fas fa-user-circle"></i>
                   </div>
                 `}
-                <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold" style="z-index: 10;">
                   <i class="fas fa-star mr-1"></i>注目
                 </div>
               </div>
@@ -1436,16 +1436,16 @@ async function renderPlayersPage() {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               ${players.map(player => `
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer" onclick="showPlayerDetail(${player.id})">
-                  <div class="relative bg-gradient-to-br from-blue-500 to-purple-600 aspect-[3/4] flex items-center justify-center">
+                  <div class="player-card-image">
                     ${player.photo_url ? `
-                      <img src="${player.photo_url}" alt="${player.name}" class="absolute inset-0 w-full h-full object-cover">
+                      <img src="${player.photo_url}" alt="${player.name}">
                     ` : `
-                      <div class="text-white text-6xl">
+                      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-white text-6xl">
                         <i class="fas fa-user-circle"></i>
                       </div>
                     `}
                     ${player.is_featured ? `
-                      <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                      <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold" style="z-index: 10;">
                         <i class="fas fa-star mr-1"></i>注目
                       </div>
                     ` : ''}
