@@ -1398,9 +1398,9 @@ async function renderPlayersPage() {
     </div>
   ` + renderFooter()
   
-  // 注目選手データを取得
+  // 全選手データを取得
   try {
-    const response = await axios.get('/api/players/featured')
+    const response = await axios.get('/api/players')
     const players = response.data
     
     if (!players || players.length === 0) {
@@ -1457,9 +1457,11 @@ async function renderPlayersPage() {
                         <i class="fas fa-user-circle"></i>
                       </div>
                     `}
-                    <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      <i class="fas fa-star mr-1"></i>注目
-                    </div>
+                    ${player.is_featured ? `
+                      <div class="absolute top-2 right-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                        <i class="fas fa-star mr-1"></i>注目
+                      </div>
+                    ` : ''}
                   </div>
                   
                   <div class="p-4">
