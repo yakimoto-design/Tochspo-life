@@ -174,11 +174,30 @@ body {
   }
 }
 
-/* 選手カード用の追加スタイル */
-#players .grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-  gap: 1.5rem !important;
+/* 選手カード用のグリッドレイアウト */
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .players-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .players-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .players-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .player-card {

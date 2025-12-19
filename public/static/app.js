@@ -499,7 +499,7 @@ function renderFeaturedPlayers(players) {
           <p class="text-gray-600 mt-2">栃木のトップアスリートたち</p>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="players-grid">
           ${players.slice(0, 12).map(player => `
             <div class="player-card" onclick="showPlayerDetail(${player.id})">
               <div class="player-card-image">
@@ -1433,7 +1433,7 @@ async function renderPlayersPage() {
               </span>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="players-grid">
               ${players.map(player => `
                 <div class="player-card" onclick="showPlayerDetail(${player.id})">
                   <div class="player-card-image">
